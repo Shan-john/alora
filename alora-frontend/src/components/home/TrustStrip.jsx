@@ -21,22 +21,24 @@ export default function TrustStrip({ items = [] }) {
   const trustItems = items.length > 0 ? items : defaultItems;
 
   return (
-    <section className="py-12 sm:py-16 bg-warm border-y border-stone-100" id="trust-strip">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
+    <section className="py-14 sm:py-16 bg-warm" id="trust-strip">
+      <div className="container-luxury">
+        <div className="flex flex-wrap items-center justify-center gap-10 sm:gap-16 lg:gap-20">
           {trustItems.map((item, index) => {
             const Icon = iconMap[item.icon] || CheckCircle;
             return (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
+                transition={{ delay: index * 0.08, duration: 0.5 }}
                 className="flex flex-col items-center text-center"
               >
-                <Icon size={28} className="text-gold mb-2" strokeWidth={1.5} />
-                <span className="text-xs tracking-wider uppercase font-body text-charcoal">{item.label}</span>
+                <Icon size={24} className="text-gold mb-3" strokeWidth={1.2} />
+                <span className="text-[10px] tracking-[0.2em] uppercase font-body text-charcoal/70">
+                  {item.label}
+                </span>
               </motion.div>
             );
           })}

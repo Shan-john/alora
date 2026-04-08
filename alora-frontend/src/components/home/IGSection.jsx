@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { InstagramIcon } from '../common/Icons';
 
 export default function IGSection({ igPosts = [] }) {
   const defaultPosts = [
@@ -14,38 +15,56 @@ export default function IGSection({ igPosts = [] }) {
   const posts = (igPosts.length > 0 ? igPosts : defaultPosts).filter(p => p.isVisible !== false);
 
   return (
-    <section className="py-16 sm:py-20 bg-ivory" id="instagram">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <p className="text-gold text-xs tracking-[4px] uppercase font-body mb-3">@alora.trio</p>
-          <h2 className="font-display text-3xl sm:text-4xl font-semibold text-charcoal">As Seen on Instagram</h2>
+    <section className="py-20 sm:py-28 bg-ivory" id="instagram">
+      <div className="container-luxury">
+        {/* Section header */}
+        <div className="text-center mb-14 sm:mb-16">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <InstagramIcon size={16} className="text-gold" />
+            <p className="text-gold text-[10px] tracking-[5px] uppercase font-body">@alorabytrio</p>
+          </div>
+          <h2 className="font-display text-3xl sm:text-[40px] font-semibold text-charcoal leading-tight">
+            As Seen on Instagram
+          </h2>
+          <div className="section-divider mt-5" />
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+        {/* Grid — clean, tight, curated */}
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">
           {posts.slice(0, 6).map((post, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.08 }}
-              className="group relative aspect-square overflow-hidden rounded-lg cursor-pointer"
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ delay: index * 0.06, duration: 0.5 }}
+              className="group relative aspect-square overflow-hidden cursor-pointer"
             >
               <img
                 src={post.imageUrl}
                 alt={`Instagram post ${index + 1}`}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/40 transition-all duration-300 flex items-center justify-center">
-                <Link
-                  to={post.productId ? `/product/${post.productId}` : '/shop'}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white text-xs tracking-wider uppercase font-body bg-gold/80 px-3 py-2 rounded"
-                >
-                  Shop the Look →
-                </Link>
+              <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/30 transition-all duration-400 flex items-center justify-center">
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <InstagramIcon size={20} className="text-white" />
+                </span>
               </div>
             </motion.div>
           ))}
+        </div>
+
+        {/* Follow CTA */}
+        <div className="text-center mt-10">
+          <a
+            href="https://www.instagram.com/alorabytrio/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase font-body text-gold hover:text-charcoal transition-colors duration-300"
+          >
+            Follow Us on Instagram
+            <span className="text-lg leading-none">→</span>
+          </a>
         </div>
       </div>
     </section>

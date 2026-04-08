@@ -22,36 +22,43 @@ export default function Categories() {
   }, []);
 
   return (
-    <section className="py-16 sm:py-20 bg-ivory" id="categories">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <p className="text-gold text-xs tracking-[4px] uppercase font-body mb-3">Explore</p>
-          <h2 className="font-display text-3xl sm:text-4xl font-semibold text-charcoal">Shop by Category</h2>
+    <section className="py-20 sm:py-28 bg-ivory" id="categories">
+      <div className="container-luxury">
+        {/* Section header */}
+        <div className="text-center mb-14 sm:mb-16">
+          <p className="text-gold text-[10px] tracking-[5px] uppercase font-body mb-4">Explore</p>
+          <h2 className="font-display text-3xl sm:text-[40px] font-semibold text-charcoal leading-tight">
+            Shop by Category
+          </h2>
+          <div className="section-divider mt-5" />
         </div>
 
-        {/* Desktop grid / Mobile horizontal scroll */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+        {/* Grid — 3 columns with generous gap */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5">
           {categories.map((cat, index) => (
             <motion.div
               key={cat.slug}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ delay: index * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
               <Link
                 to={`/shop?category=${cat.slug}`}
-                className="group relative block overflow-hidden rounded-lg aspect-[4/5]"
+                className="group relative block overflow-hidden aspect-4/5"
               >
                 <img
                   src={cat.image}
                   alt={cat.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
-                  <h3 className="font-display text-xl sm:text-2xl font-semibold text-white">{cat.name}</h3>
-                  <p className="text-white/70 text-xs tracking-wider uppercase mt-1 group-hover:text-gold transition-colors">
+                {/* Subtle gradient only at bottom */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-7">
+                  <h3 className="font-display text-lg sm:text-xl font-semibold text-white tracking-wide">
+                    {cat.name}
+                  </h3>
+                  <p className="text-white/50 text-[10px] tracking-[0.2em] uppercase mt-1 group-hover:text-gold transition-colors duration-300 font-body">
                     Explore →
                   </p>
                 </div>

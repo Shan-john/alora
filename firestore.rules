@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Public reads on active products
+    match /products/{id} {
+      allow read: if resource.data.status == "active";
+    }
+
+    // Public reads on visible categories
+    match /categories/{id} {
+      allow read: if resource.data.isVisible == true;
+    }
+
+    // Public reads on store settings
+    match /settings/store {
+      allow read: if true;
+    }
+
+    // Public reads on approved reviews
+    match /reviews/{id} {
+      allow read: if resource.data.isApproved == true;
+    }
+
+    // Customer can read own orders
+    match /orders/{id} {
+      allow read: if request.auth != null && request.auth.token.email == resource.data.customer.email;
+    }
+
+    // All writes go through the Node.js server using Admin SDK (bypasses these rules)
+    // No direct client writes allowed to sensitive collections
+    match /{document=**} {
+      allow write: if false;
+    }
+  }
+}

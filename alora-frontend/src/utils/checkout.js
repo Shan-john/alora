@@ -45,7 +45,7 @@ export async function createPendingOrder(items, customer, total, orderMethod, me
 /**
  * Open Instagram DM with clipboard copy.
  */
-export async function openInstagramDM(messageText, igHandle = 'alora.trio') {
+export async function openInstagramDM(messageText, igHandle = 'alorabytrio') {
   try {
     await navigator.clipboard.writeText(messageText);
   } catch {
@@ -63,7 +63,7 @@ export async function openInstagramDM(messageText, igHandle = 'alora.trio') {
 /**
  * Open WhatsApp with pre-filled message.
  */
-export function openWhatsApp(messageText, phoneNumber = '919876543210') {
+export function openWhatsApp(messageText, phoneNumber = '919497711275') {
   const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(messageText)}`;
   window.open(url, '_blank');
 }

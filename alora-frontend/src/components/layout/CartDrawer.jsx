@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Minus, Plus, ShoppingBag, Instagram, MessageCircle } from 'lucide-react';
+import { X, Minus, Plus, ShoppingBag, MessageCircle } from 'lucide-react';
+import { InstagramIcon as Instagram } from '../common/Icons';
 import { useCart } from '../../context/CartContext';
 import { formatPrice } from '../../utils/format';
 import { Link } from 'react-router-dom';

@@ -11,32 +11,35 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthChange(async (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser);
-        // Check admin status
-        try {
-          const adminDoc = await getDocument('admins', firebaseUser.uid);
-          if (adminDoc) {
-            setIsAdmin(true);
-            setAdminRole(adminDoc.role);
-          } else {
+    try {
+      const unsubscribe = onAuthChange(async (firebaseUser) => {
+        if (firebaseUser) {
+          setUser(firebaseUser);
+          try {
+            const adminDoc = await getDocument('admins', firebaseUser.uid);
+            if (adminDoc) {
+              setIsAdmin(true);
+              setAdminRole(adminDoc.role);
+            } else {
+              setIsAdmin(false);
+              setAdminRole(null);
+            }
+          } catch {
             setIsAdmin(false);
             setAdminRole(null);
           }
-        } catch {
+        } else {
+          setUser(null);
           setIsAdmin(false);
           setAdminRole(null);
         }
-      } else {
-        setUser(null);
-        setIsAdmin(false);
-        setAdminRole(null);
-      }
+        setLoading(false);
+      });
+      return () => unsubscribe();
+    } catch {
       setLoading(false);
-    });
-
-    return () => unsubscribe();
+      return () => {};
+    }
   }, []);
 
   const logout = async () => {

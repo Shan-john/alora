@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
-import { Instagram, MessageCircle, Mail, MapPin } from 'lucide-react';
+import { MessageCircle, Mail, MapPin } from 'lucide-react';
+import { InstagramIcon as Instagram } from '../common/Icons';
 
 export default function Footer({ settings = {} }) {
   const year = new Date().getFullYear();
-  const igHandle = settings.igHandle || 'alora.trio';
-  const whatsappNumber = settings.whatsappNumber || '919876543210';
+  const igHandle = settings.igHandle || 'alorabytrio';
+  const whatsappNumber = settings.whatsappNumber || '919497711275';
 
   return (
     <footer className="bg-charcoal text-stone-300">

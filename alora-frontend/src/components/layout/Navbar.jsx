@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Heart, ShoppingBag, Menu, X, User } from 'lucide-react';
+import { Search, Heart, ShoppingBag, Menu, X, User, ChevronRight } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 
@@ -15,8 +15,8 @@ export default function Navbar() {
   const isHome = location.pathname === '/';
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll);
+    const handleScroll = () => setIsScrolled(window.scrollY > 60);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -33,67 +33,68 @@ export default function Navbar() {
 
   const [wishlistCount] = useState(() => {
     try {
-      const wl = JSON.parse(localStorage.getItem('alora_wishlist') || '[]');
-      return wl.length;
+      return JSON.parse(localStorage.getItem('alora_wishlist') || '[]').length;
     } catch { return 0; }
   });
 
+  const textColor = isScrolled || !isHome ? 'text-charcoal' : 'text-white';
+  const hoverColor = isScrolled || !isHome ? 'hover:text-gold' : 'hover:text-gold-light';
+  const subtextColor = isScrolled || !isHome ? 'text-gold' : 'text-gold-light';
+
   return (
     <>
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        isScrolled || !isHome
-          ? 'bg-ivory/95 backdrop-blur-md shadow-sm'
-          : 'bg-transparent'
-      }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-20">
-            {/* Mobile menu button */}
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-out ${
+          isScrolled || !isHome
+            ? 'bg-ivory/95 backdrop-blur-xl border-b border-stone-200/40'
+            : 'bg-transparent'
+        }`}
+      >
+        <div className="container-luxury">
+          <div className="flex items-center justify-between h-[72px] sm:h-[84px]">
+            {/* Mobile hamburger */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2"
+              className="lg:hidden p-2 -ml-2"
               id="mobile-menu-toggle"
             >
-              <Menu size={22} className={isScrolled || !isHome ? 'text-charcoal' : 'text-white'} />
+              <Menu size={20} strokeWidth={1.5} className={textColor} />
             </button>
 
-            {/* Left nav links (desktop) */}
-            <div className="hidden lg:flex items-center space-x-8">
+            {/* Left nav links */}
+            <div className="hidden lg:flex items-center gap-10">
               {navLinks.slice(0, 2).map(link => (
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`relative text-sm tracking-wider uppercase font-body gold-underline transition-colors ${
-                    isScrolled || !isHome ? 'text-charcoal hover:text-gold' : 'text-white/90 hover:text-white'
-                  }`}
+                  className={`relative text-[11px] tracking-[0.2em] uppercase font-body gold-underline transition-colors duration-300 ${textColor} ${hoverColor}`}
                 >
                   {link.name}
                 </Link>
               ))}
             </div>
 
-            {/* Logo */}
-            <Link to="/" className="text-center">
-              <h1 className={`font-display text-2xl sm:text-[26px] font-semibold tracking-wide transition-colors ${
-                isScrolled || !isHome ? 'text-charcoal' : 'text-white'
-              }`}>
+            {/* Logo — center */}
+            <Link to="/" className="text-center group">
+              <h1
+                className={`font-display text-[26px] sm:text-[30px] font-semibold tracking-[0.04em] transition-colors duration-500 ${textColor}`}
+              >
                 Alora
               </h1>
-              <p className={`text-[9px] tracking-[3px] uppercase -mt-1 transition-colors ${
-                isScrolled || !isHome ? 'text-gold' : 'text-gold-light'
-              }`}>
+              <p
+                className={`text-[8px] tracking-[4px] uppercase -mt-1.5 transition-colors duration-500 font-body font-medium ${subtextColor}`}
+              >
                 by Trio
               </p>
             </Link>
 
-            {/* Right nav links (desktop) */}
-            <div className="hidden lg:flex items-center space-x-8">
+            {/* Right nav links */}
+            <div className="hidden lg:flex items-center gap-10">
               {navLinks.slice(2).map(link => (
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`relative text-sm tracking-wider uppercase font-body gold-underline transition-colors ${
-                    isScrolled || !isHome ? 'text-charcoal hover:text-gold' : 'text-white/90 hover:text-white'
-                  }`}
+                  className={`relative text-[11px] tracking-[0.2em] uppercase font-body gold-underline transition-colors duration-300 ${textColor} ${hoverColor}`}
                 >
                   {link.name}
                 </Link>
@@ -101,22 +102,22 @@ export default function Navbar() {
             </div>
 
             {/* Icons */}
-            <div className="flex items-center space-x-3 sm:space-x-4">
+            <div className="flex items-center gap-1 sm:gap-2">
               <button
                 onClick={() => setIsSearchOpen(true)}
-                className={`p-2 transition-colors ${isScrolled || !isHome ? 'text-charcoal hover:text-gold' : 'text-white hover:text-gold-light'}`}
+                className={`p-2.5 transition-colors duration-300 ${textColor} ${hoverColor}`}
                 id="search-toggle"
               >
-                <Search size={20} />
+                <Search size={18} strokeWidth={1.5} />
               </button>
 
               <Link
                 to="/wishlist"
-                className={`relative p-2 transition-colors hidden sm:block ${isScrolled || !isHome ? 'text-charcoal hover:text-gold' : 'text-white hover:text-gold-light'}`}
+                className={`relative p-2.5 transition-colors duration-300 hidden sm:block ${textColor} ${hoverColor}`}
               >
-                <Heart size={20} />
+                <Heart size={18} strokeWidth={1.5} />
                 {wishlistCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-gold text-warm text-[10px] w-4 h-4 flex items-center justify-center rounded-full">
+                  <span className="absolute top-1 right-0.5 w-3.5 h-3.5 bg-gold text-warm text-[8px] flex items-center justify-center rounded-full font-medium">
                     {wishlistCount}
                   </span>
                 )}
@@ -124,12 +125,12 @@ export default function Navbar() {
 
               <button
                 onClick={() => setIsCartOpen(true)}
-                className={`relative p-2 transition-colors ${isScrolled || !isHome ? 'text-charcoal hover:text-gold' : 'text-white hover:text-gold-light'}`}
+                className={`relative p-2.5 transition-colors duration-300 ${textColor} ${hoverColor}`}
                 id="cart-toggle"
               >
-                <ShoppingBag size={20} />
+                <ShoppingBag size={18} strokeWidth={1.5} />
                 {totalItems > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-gold text-warm text-[10px] w-4 h-4 flex items-center justify-center rounded-full">
+                  <span className="absolute top-1 right-0.5 w-3.5 h-3.5 bg-gold text-warm text-[8px] flex items-center justify-center rounded-full font-medium">
                     {totalItems}
                   </span>
                 )}
@@ -137,16 +138,16 @@ export default function Navbar() {
 
               <Link
                 to={user ? (isAdmin ? '/admin' : '/account') : '/login'}
-                className={`p-2 transition-colors hidden sm:block ${isScrolled || !isHome ? 'text-charcoal hover:text-gold' : 'text-white hover:text-gold-light'}`}
+                className={`p-2.5 transition-colors duration-300 hidden sm:block ${textColor} ${hoverColor}`}
               >
-                <User size={20} />
+                <User size={18} strokeWidth={1.5} />
               </Link>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Mobile Menu Drawer */}
+      {/* ── Mobile Menu Drawer ── */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
@@ -154,57 +155,68 @@ export default function Navbar() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 z-50 lg:hidden"
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 bg-charcoal/40 backdrop-blur-sm z-50 lg:hidden"
               onClick={() => setIsMobileMenuOpen(false)}
             />
             <motion.div
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 left-0 h-full w-80 bg-ivory z-50 shadow-2xl lg:hidden"
+              transition={{ type: 'spring', damping: 30, stiffness: 250 }}
+              className="fixed top-0 left-0 h-full w-[320px] bg-ivory z-50 shadow-2xl lg:hidden"
             >
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-8">
+              <div className="flex flex-col h-full">
+                <div className="flex items-center justify-between p-6 pb-4 border-b border-stone-200/40">
                   <div>
                     <h2 className="font-display text-2xl font-semibold text-charcoal">Alora</h2>
-                    <p className="text-[9px] tracking-[3px] uppercase text-gold -mt-1">by Trio</p>
+                    <p className="text-[8px] tracking-[4px] uppercase text-gold -mt-1 font-body">by Trio</p>
                   </div>
-                  <button onClick={() => setIsMobileMenuOpen(false)} className="p-2">
-                    <X size={22} className="text-charcoal" />
+                  <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 -mr-2">
+                    <X size={20} strokeWidth={1.5} className="text-charcoal" />
                   </button>
                 </div>
 
-                <div className="space-y-1">
+                <div className="flex-1 py-6 px-4 space-y-1">
                   {navLinks.map(link => (
                     <Link
                       key={link.path}
                       to={link.path}
-                      className="block py-3 px-4 text-charcoal hover:text-gold hover:bg-gold/5 rounded-lg text-sm tracking-wider uppercase font-body transition-colors"
+                      className="flex items-center justify-between py-3.5 px-3 text-charcoal hover:text-gold text-[11px] tracking-[0.2em] uppercase font-body transition-colors duration-300"
                     >
-                      {link.name}
+                      <span>{link.name}</span>
+                      <ChevronRight size={14} strokeWidth={1.5} className="text-stone-300" />
                     </Link>
                   ))}
-                  <hr className="my-4 border-stone-200" />
+
+                  <div className="my-4 h-px bg-stone-200/60" />
+
                   <Link
                     to={user ? '/account' : '/login'}
-                    className="block py-3 px-4 text-charcoal hover:text-gold hover:bg-gold/5 rounded-lg text-sm tracking-wider uppercase font-body transition-colors"
+                    className="flex items-center justify-between py-3.5 px-3 text-charcoal hover:text-gold text-[11px] tracking-[0.2em] uppercase font-body transition-colors duration-300"
                   >
-                    {user ? 'My Account' : 'Sign In'}
+                    <span>{user ? 'My Account' : 'Sign In'}</span>
+                    <ChevronRight size={14} strokeWidth={1.5} className="text-stone-300" />
                   </Link>
                   <Link
                     to="/track"
-                    className="block py-3 px-4 text-charcoal hover:text-gold hover:bg-gold/5 rounded-lg text-sm tracking-wider uppercase font-body transition-colors"
+                    className="flex items-center justify-between py-3.5 px-3 text-charcoal hover:text-gold text-[11px] tracking-[0.2em] uppercase font-body transition-colors duration-300"
                   >
-                    Track Order
+                    <span>Track Order</span>
+                    <ChevronRight size={14} strokeWidth={1.5} className="text-stone-300" />
                   </Link>
+
                   {isAdmin && (
-                    <Link
-                      to="/admin"
-                      className="block py-3 px-4 text-gold font-medium hover:bg-gold/5 rounded-lg text-sm tracking-wider uppercase font-body transition-colors"
-                    >
-                      Admin Panel
-                    </Link>
+                    <>
+                      <div className="my-4 h-px bg-stone-200/60" />
+                      <Link
+                        to="/admin"
+                        className="flex items-center justify-between py-3.5 px-3 text-gold text-[11px] tracking-[0.2em] uppercase font-body font-medium transition-colors duration-300"
+                      >
+                        <span>Admin Panel</span>
+                        <ChevronRight size={14} strokeWidth={1.5} className="text-gold/40" />
+                      </Link>
+                    </>
                   )}
                 </div>
               </div>
@@ -213,45 +225,50 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
-      {/* Search Overlay */}
+      {/* ── Search Overlay ── */}
       <AnimatePresence>
         {isSearchOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-charcoal/90 z-50 flex items-start justify-center pt-32"
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-charcoal/80 backdrop-blur-sm z-50 flex items-start justify-center pt-[20vh]"
             onClick={(e) => e.target === e.currentTarget && setIsSearchOpen(false)}
           >
             <motion.div
-              initial={{ y: -20, opacity: 0 }}
+              initial={{ y: -30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -20, opacity: 0 }}
-              className="w-full max-w-2xl mx-4"
+              exit={{ y: -30, opacity: 0 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="w-full max-w-xl mx-6"
             >
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={20} />
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-400" size={18} strokeWidth={1.5} />
                 <input
                   type="text"
                   placeholder="Search for jewellery..."
-                  className="w-full py-4 pl-12 pr-12 bg-white rounded-lg text-lg font-body focus:outline-none focus:ring-2 focus:ring-gold"
+                  className="w-full py-5 pl-14 pr-14 bg-ivory text-charcoal text-base font-body focus:outline-none focus:ring-1 focus:ring-gold/30 placeholder:text-stone-400 tracking-wide"
                   autoFocus
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && e.target.value) {
                       setIsSearchOpen(false);
                       window.location.href = `/shop?search=${encodeURIComponent(e.target.value)}`;
                     }
+                    if (e.key === 'Escape') setIsSearchOpen(false);
                   }}
                   id="search-input"
                 />
                 <button
                   onClick={() => setIsSearchOpen(false)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-charcoal"
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-charcoal transition-colors"
                 >
-                  <X size={20} />
+                  <X size={18} strokeWidth={1.5} />
                 </button>
               </div>
-              <p className="text-stone-400 text-sm text-center mt-4">Press Enter to search or Esc to close</p>
+              <p className="text-stone-500 text-[11px] tracking-wider text-center mt-5 uppercase">
+                Press Enter to search · Esc to close
+              </p>
             </motion.div>
           </motion.div>
         )}

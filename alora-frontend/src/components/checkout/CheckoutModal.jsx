@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Instagram, MessageCircle, Copy, Check, ShoppingBag } from 'lucide-react';
+import { X, MessageCircle, Copy, Check, ShoppingBag } from 'lucide-react';
+import { InstagramIcon as Instagram } from '../common/Icons';
 import { useCart } from '../../context/CartContext';
 import { formatPrice } from '../../utils/format';
 import { generateOrderMessage, createPendingOrder, openInstagramDM, openWhatsApp } from '../../utils/checkout';

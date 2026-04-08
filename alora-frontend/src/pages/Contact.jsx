@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { Instagram, MessageCircle, Mail, Send } from 'lucide-react';
+import { MessageCircle, Mail, Send } from 'lucide-react';
+import { InstagramIcon as Instagram } from '../components/common/Icons';
 import { api } from '../utils/api';
 import Button from '../components/common/Button';
 import toast from 'react-hot-toast';
@@ -51,23 +52,23 @@ export default function Contact() {
               </p>
 
               <div className="space-y-6">
-                <a href="https://instagram.com/alora.trio" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group">
+                <a href="https://instagram.com/alorabytrio" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group">
                   <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center group-hover:bg-gold group-hover:text-warm transition-all">
                     <Instagram size={20} className="text-gold group-hover:text-warm" />
                   </div>
                   <div>
                     <p className="font-body text-sm font-medium text-charcoal">Instagram</p>
-                    <p className="text-xs text-stone-500">@alora.trio</p>
+                    <p className="text-xs text-stone-500">@alorabytrio</p>
                   </div>
                 </a>
 
-                <a href="https://wa.me/919876543210" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group">
+                <a href="https://wa.me/919497711275" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group">
                   <div className="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center group-hover:bg-green-500 transition-all">
                     <MessageCircle size={20} className="text-gold group-hover:text-white" />
                   </div>
                   <div>
                     <p className="font-body text-sm font-medium text-charcoal">WhatsApp</p>
-                    <p className="text-xs text-stone-500">+91 98765 43210</p>
+                    <p className="text-xs text-stone-500">+91 94977 11275</p>
                   </div>
                 </a>
 
