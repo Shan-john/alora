@@ -3,27 +3,30 @@ import { motion } from 'framer-motion';
 import Button from '../common/Button';
 
 export default function GiftingBanner({ banner = {} }) {
-  const image = banner.image || 'https://images.unsplash.com/photo-1603561591411-07134e71a2a9?w=1600&q=80';
+  const image = banner.image || 'https://images.unsplash.com/photo-1603561591411-07134e71a2a9?w=1600&q=85';
   const heading = banner.heading || 'The Perfect Gift Awaits';
   const subheading = banner.subheading || 'Find beautifully curated gifts for every budget';
 
   return (
-    <section className="relative py-24 sm:py-32 overflow-hidden" id="gifting">
+    <section className="relative py-28 sm:py-36 overflow-hidden" id="gifting">
       <div className="absolute inset-0">
         <img src={image} alt="Gifting" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-charcoal/50" />
+        <div className="absolute inset-0 bg-charcoal/55" />
       </div>
 
-      <div className="relative max-w-4xl mx-auto px-4 text-center">
+      <div className="relative container-luxury text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="max-w-2xl mx-auto"
         >
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold text-white mb-4">
+          <p className="text-gold text-[10px] tracking-[5px] uppercase font-body mb-5">Gifting</p>
+          <h2 className="font-display text-3xl sm:text-[44px] md:text-[52px] font-semibold text-white leading-[1.1] mb-5">
             {heading}
           </h2>
-          <p className="text-white/80 text-base sm:text-lg mb-8 font-body">
+          <p className="text-white/60 text-sm sm:text-base mb-10 font-body tracking-wide leading-relaxed">
             {subheading}
           </p>
 
@@ -32,14 +35,10 @@ export default function GiftingBanner({ banner = {} }) {
               <Button variant="solid" size="md">Under ₹499</Button>
             </Link>
             <Link to="/shop?minPrice=499&maxPrice=999">
-              <Button variant="outline" size="md" className="!border-white !text-white hover:!bg-white hover:!text-charcoal">
-                ₹499 — ₹999
-              </Button>
+              <Button variant="white" size="md">₹499 — ₹999</Button>
             </Link>
             <Link to="/shop?minPrice=999">
-              <Button variant="outline" size="md" className="!border-gold !text-gold hover:!bg-gold hover:!text-warm">
-                ₹999+
-              </Button>
+              <Button variant="gold-outline" size="md">₹999+</Button>
             </Link>
           </div>
         </motion.div>
