@@ -203,6 +203,28 @@ export default function ProductDetail() {
     return messageLines.join("\n");
   };
 
+  const getEnquiryMessage = () => {
+    const messageLines = [
+      `Hi! I want to enquire about *${product.name}* (${formatPrice(currentPrice)}).`,
+      "",
+      "*Product Details:*",
+      `- Product: ${product.name}`,
+      `- Product ID: ${product.id}`,
+      `- Quantity: ${quantity}`,
+      `- Total: ${formatPrice(currentPrice * quantity)}`,
+      `- Product page: ${window.location.href}`,
+      `- Product image: ${selectedImageUrl || "N/A"}`,
+    ];
+    
+    if (product.description) {
+      let desc = product.description;
+      if (desc.length > 150) desc = desc.substring(0, 150) + "...";
+      messageLines.push(`- Description: ${desc}`);
+    }
+    
+    return messageLines.join("\n");
+  };
+
   return (
     <>
       <Helmet>
@@ -409,7 +431,7 @@ export default function ProductDetail() {
                   href={`https://wa.me/${whatsappNumber}?text=${
                     isGiftOrder
                       ? encodeURIComponent(getGiftOrderMessage())
-                      : encodeURIComponent(`Hi! I want to enquire about ${product.name} (${formatPrice(currentPrice)}).`)
+                      : encodeURIComponent(getEnquiryMessage())
                   }`}
                   target="_blank"
                   rel="noopener noreferrer"
