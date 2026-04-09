@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { registerWithEmail } from '../firebase/auth';
 import { api } from '../utils/api';
 import Button from '../components/common/Button';
 import toast from 'react-hot-toast';
@@ -16,7 +15,12 @@ export default function Register() {
     e.preventDefault();
     setLoading(true);
     try {
-      await registerWithEmail(form.email, form.password, form.name);
+      await api.register({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        phone: form.phone,
+      });
       toast.success('Account created! Welcome to Alora.');
       navigate('/');
     } catch (err) {

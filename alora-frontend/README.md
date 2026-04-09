@@ -26,11 +26,12 @@ A high-end luxury jewelry e-commerce platform curated and built by Trio. Alora p
 
 ### UX / UI Tooling
 - **Lucide React**: Elegant, consistent, and highly legible SVG icons used throughout the interface.
-- **React Hook Form & React Hot Toast**: Seamless handling of form inputs and stylish, non-intrusive toast notifications across user actions.
+- **React Hot Toast**: Stylish, non-intrusive toast notifications across user actions.
 - **React Helmet Async**: Dynamic manipulation of document head data for comprehensive SEO optimization (`titles`, `meta` tags, OpenGraph data).
 
 ### Logic & Backend Interfacing
-- **API Utilities Abstraction**: The frontend is fully decoupled using `src/utils/api.js`, which interfaces seamlessly with backend systems (Node.js/Firebase) to pull product schemas, dynamic settings, user reviews, and cart states.
+- **Custom JWT Authentication**: The application utilizes a bespoke JSON Web Token (JWT) authentication loop validated securely against a local Postgres `bcrypt` dataset, providing native session management without reliance on external providers (e.g. Firebase).
+- **REST API Subsystem**: The frontend is natively decoupled via `src/utils/api.js`, which interfaces seamlessly with the underlying bespoke **Node.js** and **PostgreSQL** backend to synchronize user registration, product schemas, and live application settings.
 - **WhatsApp Protocol (wa.me)**: Encoded URI parameters dynamically feed deep link commands into WhatsApp web/mobile interfaces directly from the React context.
 
 ---
@@ -47,4 +48,4 @@ To get the frontend up and running locally:
    ```bash
    npm run dev
    ```
-3. Create your `.env` based on `.env.example` to point the frontend to the correct Backend API endpoint.
+3. Ensure `.env` is configured natively to point to your live backend endpoint.

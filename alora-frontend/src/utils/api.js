@@ -1,4 +1,4 @@
-import { getIdToken } from '../firebase/auth';
+// Auth uses local storage for JWT tokens
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -16,7 +16,7 @@ async function apiRequest(path, options = {}) {
   }
 
   if (requestOptions.auth) {
-    let token = await getIdToken();
+    let token = localStorage.getItem('alora_token');
     if (!token && localStorage.getItem('alora_admin_logged_in') === 'true') {
       token = 'local-admin';
     }
@@ -76,6 +76,10 @@ export const api = {
     body: JSON.stringify({ email }),
   }),
   submitEnquiry: (data) => apiRequest('/api/enquiries', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  login: (data) => apiRequest('/api/customers/login', {
     method: 'POST',
     body: JSON.stringify(data),
   }),
