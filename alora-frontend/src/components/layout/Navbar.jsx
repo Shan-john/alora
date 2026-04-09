@@ -246,13 +246,7 @@ export default function Navbar() {
                 >
                   <Heart size={18} strokeWidth={1.5} /> Wishlist
                 </Link>
-                <Link
-                  to="/account"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2 text-[14px] text-[#777] font-body"
-                >
-                  <User size={18} strokeWidth={1.5} /> Account
-                </Link>
+                 
               </div>
             </motion.div>
           </>
