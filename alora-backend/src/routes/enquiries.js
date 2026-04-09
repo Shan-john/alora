@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { db, admin } = require('../config/firebase');
+const { pool } = require('../config/database');
 const { body, validationResult } = require('express-validator');
 
 // POST /api/enquiries — contact form
@@ -18,13 +18,10 @@ router.post('/', [
   try {
     const { name, email, subject, message } = req.body;
 
-    await db.collection('enquiries').add({
-      name,
-      email,
-      subject,
-      message,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+    await pool.query(
+      'INSERT INTO enquiries (name, email, subject, message) VALUES ($1, $2, $3, $4)',
+      [name, email, subject, message]
+    );
 
     res.status(201).json({ message: 'Enquiry submitted successfully' });
   } catch (err) {

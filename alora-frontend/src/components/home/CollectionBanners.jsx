@@ -1,31 +1,14 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-const defaultBanners = [
-  {
-    title: 'New Necklace\nCollection',
-    subtitle: 'Catch the highlight in the room',
-    cta: 'Shop More',
-    link: '/shop?category=necklaces',
-    image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=85',
-  },
-  {
-    title: 'Culture of\nRing Design',
-    subtitle: 'Handcrafted with precision & love',
-    cta: 'Shop More',
-    link: '/shop?category=rings',
-    image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=85',
-  },
-];
-
 export default function CollectionBanners({ banners = [] }) {
-  const items = banners.length > 0 ? banners : defaultBanners;
+  if (!banners || banners.length === 0) return null;
 
   return (
     <section className="bg-white" style={{ padding: '50px 0 30px' }} id="collection-banners">
       <div className="container-luxury">
         <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '30px' }}>
-          {items.map((banner, index) => (
+          {banners.map((banner, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 30 }}

@@ -1,26 +1,26 @@
-const transporter = require('../config/nodemailer');
-require('dotenv').config();
+const transporter = require("../config/nodemailer");
+require("dotenv").config();
 
 const FROM_EMAIL = `"Alora by Trio" <${process.env.SMTP_USER || process.env.GMAIL_USER}>`;
 
 const statusLabels = {
-  pending: 'Order Received',
-  confirmed: 'Order Confirmed',
-  processing: 'Being Prepared',
-  packed: 'Packed & Ready',
-  shipped: 'Shipped',
-  delivered: 'Delivered',
-  cancelled: 'Cancelled',
+  pending: "Order Received",
+  confirmed: "Order Confirmed",
+  processing: "Being Prepared",
+  packed: "Packed & Ready",
+  shipped: "Shipped",
+  delivered: "Delivered",
+  cancelled: "Cancelled",
 };
 
 const statusEmojis = {
-  pending: '📋',
-  confirmed: '✅',
-  processing: '⚙️',
-  packed: '📦',
-  shipped: '🚚',
-  delivered: '🎉',
-  cancelled: '❌',
+  pending: "📋",
+  confirmed: "✅",
+  processing: "⚙️",
+  packed: "📦",
+  shipped: "🚚",
+  delivered: "🎉",
+  cancelled: "❌",
 };
 
 /**
@@ -28,16 +28,19 @@ const statusEmojis = {
  */
 async function sendOrderStatusEmail(order, newStatus) {
   const { customer, items, total } = order;
-  const emoji = statusEmojis[newStatus] || '📋';
+  const emoji = statusEmojis[newStatus] || "📋";
   const label = statusLabels[newStatus] || newStatus;
 
   const itemsList = items
-    .map((it) => `• ${it.name}${it.variant ? ` (${it.variant})` : ''} × ${it.quantity} — ₹${it.price * it.quantity}`)
-    .join('\n');
+    .map(
+      (it) =>
+        `• ${it.name}${it.variant ? ` (${it.variant})` : ""} × ${it.quantity} — ₹${it.price * it.quantity}`,
+    )
+    .join("\n");
 
   const trackingInfo = order.tracking
     ? `\n\n📦 Tracking Number: ${order.tracking}`
-    : '';
+    : "";
 
   const html = `
     <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #F7F4EF; padding: 40px 20px;">
@@ -49,7 +52,7 @@ async function sendOrderStatusEmail(order, newStatus) {
       <div style="background: white; border-radius: 12px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
         <h2 style="color: #1A1A1A; font-size: 22px; margin-top: 0;">${emoji} ${label}</h2>
         <p style="color: #666; font-size: 14px;">Hi ${customer.name},</p>
-        <p style="color: #666; font-size: 14px;">Your order <strong style="color: #B8973A;">#${order.orderId || ''}</strong> has been updated.</p>
+        <p style="color: #666; font-size: 14px;">Your order <strong style="color: #B8973A;">#${order.orderId || ""}</strong> has been updated.</p>
         
         <div style="background: #F7F4EF; border-radius: 8px; padding: 20px; margin: 20px 0;">
           <h3 style="color: #1A1A1A; font-size: 16px; margin-top: 0;">Order Details</h3>
@@ -57,7 +60,7 @@ async function sendOrderStatusEmail(order, newStatus) {
           <hr style="border: none; border-top: 1px solid #E5E5E5; margin: 15px 0;">
           <p style="color: #1A1A1A; font-size: 16px; font-weight: bold; margin: 0;">Total: ₹${total}</p>
         </div>
-        ${trackingInfo ? `<p style="color: #666; font-size: 14px;">${trackingInfo}</p>` : ''}
+        ${trackingInfo ? `<p style="color: #666; font-size: 14px;">${trackingInfo}</p>` : ""}
         
         <p style="color: #666; font-size: 14px;">If you have any questions, reach out to us on Instagram <a href="https://instagram.com/alora.trio" style="color: #B8973A;">@alora.trio</a></p>
       </div>
@@ -78,7 +81,7 @@ async function sendOrderStatusEmail(order, newStatus) {
     console.log(`📧 Email sent to ${customer.email} — Status: ${newStatus}`);
     return true;
   } catch (err) {
-    console.error('Email send error:', err.message);
+    console.error("Email send error:", err.message);
     return false;
   }
 }
@@ -87,7 +90,7 @@ async function sendOrderStatusEmail(order, newStatus) {
  * Send order confirmation email.
  */
 async function sendOrderConfirmationEmail(order) {
-  return sendOrderStatusEmail(order, 'pending');
+  return sendOrderStatusEmail(order, "pending");
 }
 
 /**
@@ -98,7 +101,7 @@ async function sendTestEmail(toEmail) {
     await transporter.sendMail({
       from: FROM_EMAIL,
       to: toEmail,
-      subject: '✅ Alora by Trio — Email Test Successful',
+      subject: "✅ Alora by Trio — Email Test Successful",
       html: `<div style="font-family: Arial, sans-serif; padding: 20px;">
         <h2>Email Configuration Working!</h2>
         <p>Your Gmail SMTP is correctly configured for Alora by Trio.</p>
@@ -106,9 +109,13 @@ async function sendTestEmail(toEmail) {
     });
     return true;
   } catch (err) {
-    console.error('Test email error:', err.message);
+    console.error("Test email error:", err.message);
     throw err;
   }
 }
 
-module.exports = { sendOrderStatusEmail, sendOrderConfirmationEmail, sendTestEmail };
+module.exports = {
+  sendOrderStatusEmail,
+  sendOrderConfirmationEmail,
+  sendTestEmail,
+};

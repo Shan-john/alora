@@ -1,8 +1,10 @@
-const { auth, db } = require('../config/firebase');
+const jwt = require('jsonwebtoken');
+const { pool } = require('../config/database');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'alora-secret-key-123';
 
 /**
- * Middleware to verify Firebase ID token from Authorization header.
- * Optionally checks if the user is an admin.
+ * Middleware to verify JWT token from Authorization header.
  */
 const verifyAuth = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -10,10 +12,10 @@ const verifyAuth = async (req, res, next) => {
     return res.status(401).json({ error: 'Missing or invalid authorization header' });
   }
 
-  const idToken = authHeader.split('Bearer ')[1];
+  const token = authHeader.split('Bearer ')[1];
   try {
-    const decoded = await auth.verifyIdToken(idToken);
-    req.user = decoded;
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded; // { id, email, role }
     next();
   } catch (err) {
     console.error('Auth error:', err.message);
@@ -27,11 +29,11 @@ const verifyAuth = async (req, res, next) => {
  */
 const verifyAdmin = async (req, res, next) => {
   try {
-    const adminDoc = await db.collection('admins').doc(req.user.uid).get();
-    if (!adminDoc.exists) {
+    const { rows } = await pool.query('SELECT role FROM admins WHERE id = $1', [req.user.id]);
+    if (rows.length === 0) {
       return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
     }
-    req.adminRole = adminDoc.data().role;
+    req.adminRole = rows[0].role;
     next();
   } catch (err) {
     console.error('Admin check error:', err.message);
@@ -39,4 +41,4 @@ const verifyAdmin = async (req, res, next) => {
   }
 };
 
-module.exports = { verifyAuth, verifyAdmin };
+module.exports = { verifyAuth, verifyAdmin, JWT_SECRET };

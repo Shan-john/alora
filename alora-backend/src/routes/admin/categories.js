@@ -1,15 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { db, admin } = require('../../config/firebase');
+const { pool } = require('../../config/database');
 
 // GET /api/admin/categories
 router.get('/', async (req, res) => {
   try {
-    const snapshot = await db.collection('categories').orderBy('order', 'asc').get();
-    const categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    res.json({ categories });
+    const { rows } = await pool.query('SELECT slug, name, image_url as image, display_order as order, is_visible FROM categories ORDER BY display_order ASC');
+    res.json({ categories: rows.map(r => ({ ...r, isVisible: r.is_visible })) });
   } catch (err) {
-    console.error('Admin GET /categories error:', err);
+    console.error('GET /admin/categories error:', err);
     res.status(500).json({ error: 'Failed to fetch categories' });
   }
 });
@@ -17,43 +16,40 @@ router.get('/', async (req, res) => {
 // POST /api/admin/categories
 router.post('/', async (req, res) => {
   try {
-    const { name, slug, image, order, isVisible } = req.body;
-    const catData = {
-      name: name || '',
-      slug: slug || name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || '',
-      image: image || '',
-      order: parseInt(order) || 0,
-      isVisible: isVisible !== false,
-    };
-    const docRef = await db.collection('categories').add(catData);
-    res.status(201).json({ id: docRef.id, ...catData });
+    const { slug, name, image, order, isVisible } = req.body;
+    await pool.query(
+      'INSERT INTO categories (slug, name, image_url, display_order, is_visible) VALUES ($1, $2, $3, $4, $5)',
+      [slug, name, image || '', order || 0, isVisible ?? true]
+    );
+    res.status(201).json({ message: 'Category added' });
   } catch (err) {
-    console.error('Admin POST /categories error:', err);
-    res.status(500).json({ error: 'Failed to create category' });
+    console.error('POST /admin/categories error:', err);
+    res.status(500).json({ error: 'Failed to add category' });
   }
 });
 
-// PATCH /api/admin/categories/:id
-router.patch('/:id', async (req, res) => {
+// PUT /api/admin/categories/:slug
+router.put('/:slug', async (req, res) => {
   try {
-    const docRef = db.collection('categories').doc(req.params.id);
-    const doc = await docRef.get();
-    if (!doc.exists) return res.status(404).json({ error: 'Category not found' });
-    await docRef.update(req.body);
+    const { name, image, order, isVisible } = req.body;
+    await pool.query(
+      'UPDATE categories SET name = $1, image_url = $2, display_order = $3, is_visible = $4 WHERE slug = $5',
+      [name, image || '', order || 0, isVisible ?? true, req.params.slug]
+    );
     res.json({ message: 'Category updated' });
   } catch (err) {
-    console.error('Admin PATCH /categories error:', err);
+    console.error('PUT /admin/categories error:', err);
     res.status(500).json({ error: 'Failed to update category' });
   }
 });
 
-// DELETE /api/admin/categories/:id
-router.delete('/:id', async (req, res) => {
+// DELETE /api/admin/categories/:slug
+router.delete('/:slug', async (req, res) => {
   try {
-    await db.collection('categories').doc(req.params.id).delete();
+    await pool.query('DELETE FROM categories WHERE slug = $1', [req.params.slug]);
     res.json({ message: 'Category deleted' });
   } catch (err) {
-    console.error('Admin DELETE /categories error:', err);
+    console.error('DELETE /admin/categories error:', err);
     res.status(500).json({ error: 'Failed to delete category' });
   }
 });

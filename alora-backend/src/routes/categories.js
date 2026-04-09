@@ -1,16 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { db } = require('../config/firebase');
+const { pool } = require('../config/database');
 
 // GET /api/categories — list visible categories
 router.get('/', async (req, res) => {
   try {
-    const snapshot = await db.collection('categories')
-      .where('isVisible', '==', true)
-      .orderBy('order', 'asc')
-      .get();
-
-    const categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const { rows: categories } = await pool.query(
+      'SELECT slug, name, image_url as image, display_order FROM categories WHERE is_visible = true ORDER BY display_order ASC'
+    );
     res.json({ categories });
   } catch (err) {
     console.error('GET /categories error:', err);

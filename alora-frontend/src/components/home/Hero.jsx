@@ -3,41 +3,57 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const defaultSlides = [
-  {
-    lifestyleImage: 'https://images.unsplash.com/photo-1617038220319-276d3cfab638?w=960&q=85',
-    productImage: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=600&q=85',
-    bgColor: '#C4A27D',
-    headline: 'Elegance\nRedefined',
-    subheadline: 'Discover our handcrafted collection of luxury jewellery',
-    ctaText: 'Shop Collection',
-    ctaLink: '/shop',
-  },
-  {
-    lifestyleImage: 'https://images.unsplash.com/photo-1515562141589-67f0d569b4ce?w=960&q=85',
-    productImage: 'https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=600&q=85',
-    bgColor: '#B8973A',
-    headline: 'Adorn\nYour Story',
-    subheadline: 'Timeless pieces for every moment that matters',
-    ctaText: 'Shop Collection',
-    ctaLink: '/shop',
-  },
-  {
-    lifestyleImage: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=960&q=85',
-    productImage: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&q=85',
-    bgColor: '#9A8B7A',
-    headline: 'The Gold\nEdit',
-    subheadline: 'Premium gold-plated pieces starting at ₹599',
-    ctaText: 'Shop Collection',
-    ctaLink: '/shop?category=necklaces',
-  },
-];
+import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { api } from '../../utils/api';
 
 export default function Hero({ slides = [] }) {
   const [current, setCurrent] = useState(0);
-  const heroSlides = slides.length > 0 ? slides : defaultSlides;
+  const [heroSlides, setHeroSlides] = useState(slides);
+  const [loading, setLoading] = useState(slides.length === 0);
+
+  useEffect(() => {
+    if (slides.length > 0) {
+      setHeroSlides(slides);
+      setLoading(false);
+      return;
+    }
+    
+    // Fetch from backend
+    const fetchSettings = async () => {
+      try {
+        const data = await api.getSettings();
+        if (data.settings && data.settings.heroSlides && data.settings.heroSlides.length > 0) {
+          const sorted = [...data.settings.heroSlides].sort((a, b) => (a.order || 0) - (b.order || 0));
+          // Map to match the expected format (the db schema seed only has image, headline, subheadline, etc.)
+          // Wait, the seed actually has: image, headline, subheadline, cta1Text, cta1Link.
+          // Since the UI requires lifestyleImage, productImage, bgColor... 
+          // If the DB only gives a single image, we will duplicate it or handle it gracefully.
+          // Here we adapt the backend data to fit the UI.
+          const adaptedSlides = sorted.map(s => ({
+            lifestyleImage: s.image,
+            productImage: s.image, // fallback
+            bgColor: '#B8973A', // fallback
+            headline: s.headline,
+            subheadline: s.subheadline,
+            ctaText: s.cta1Text || 'Shop Collection',
+            ctaLink: s.cta1Link || '/shop'
+          }));
+          setHeroSlides(adaptedSlides);
+        }
+      } catch (err) {
+        // silent
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSettings();
+  }, [slides]);
 
   const nextSlide = useCallback(() => {
+    if (heroSlides.length <= 1) return;
     setCurrent((prev) => (prev + 1) % heroSlides.length);
   }, [heroSlides.length]);
 
@@ -46,9 +62,13 @@ export default function Hero({ slides = [] }) {
   };
 
   useEffect(() => {
+    if (heroSlides.length <= 1) return;
     const timer = setInterval(nextSlide, 6000);
     return () => clearInterval(timer);
-  }, [nextSlide]);
+  }, [nextSlide, heroSlides.length]);
+
+  if (loading) return <div className="w-full h-[730px] bg-[#f5f5f5] animate-pulse" />;
+  if (!heroSlides.length) return null;
 
   const slide = heroSlides[current];
 

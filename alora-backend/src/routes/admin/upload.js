@@ -5,29 +5,27 @@ const { uploadToStorage } = require('../../services/storage');
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed'), false);
-    }
-  },
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
 });
 
-// POST /api/admin/upload — upload single image to Firebase Storage
+// POST /api/admin/upload — upload an image to local public directory
 router.post('/', upload.single('image'), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: 'No image file provided' });
+      return res.status(400).json({ error: 'No image provided' });
     }
 
-    const folder = req.body.folder || 'uploads';
-    const url = await uploadToStorage(req.file.buffer, req.file.originalname, folder);
+    const { folder } = req.body; // e.g. "products", "categories", "home"
+    const publicUrl = await uploadToStorage(req.file.buffer, req.file.originalname, folder || 'misc');
 
-    res.json({ url });
+    // Make local URL absolute relative to the request to avoid frontend bugs when missing process.env
+    // Or just return the local relative path since the frontend knows its backend URL
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+    const finalUrl = `${backendUrl}${publicUrl}`; // e.g. http://localhost:5000/uploads/products/123.jpg
+
+    res.status(201).json({ url: finalUrl, message: 'Image uploaded successfully' });
   } catch (err) {
-    console.error('Admin POST /upload error:', err);
+    console.error('Image upload error:', err);
     res.status(500).json({ error: 'Failed to upload image' });
   }
 });

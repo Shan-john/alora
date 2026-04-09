@@ -1,15 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { db } = require('../config/firebase');
+const { pool } = require('../config/database');
 
 // GET /api/settings — public store settings
 router.get('/', async (req, res) => {
   try {
-    const doc = await db.collection('settings').doc('store').get();
-    if (!doc.exists) {
+    const { rows } = await pool.query("SELECT setting_value FROM settings WHERE setting_key = 'store'");
+    if (rows.length === 0) {
       return res.json({ settings: {} });
     }
-    res.json({ settings: doc.data() });
+    res.json({ settings: rows[0].setting_value });
   } catch (err) {
     console.error('GET /settings error:', err);
     res.status(500).json({ error: 'Failed to fetch settings' });

@@ -2,16 +2,9 @@ import { motion } from 'framer-motion';
 import { InstagramIcon } from '../common/Icons';
 
 export default function IGSection({ igPosts = [] }) {
-  const defaultPosts = [
-    { imageUrl: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&q=80' },
-    { imageUrl: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&q=80' },
-    { imageUrl: 'https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=400&q=80' },
-    { imageUrl: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&q=80' },
-    { imageUrl: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&q=80' },
-    { imageUrl: 'https://images.unsplash.com/photo-1588444837495-c6cfeb53f32d?w=400&q=80' },
-  ];
+  if (!igPosts || igPosts.length === 0) return null;
 
-  const posts = igPosts.length > 0 ? igPosts : defaultPosts;
+  const posts = igPosts;
 
   return (
     <section className="bg-white" id="instagram">

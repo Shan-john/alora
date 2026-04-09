@@ -1,50 +1,48 @@
-const { bucket } = require('../config/firebase');
-const { v4: uuidv4 } = require('uuid');
+const fs = require('fs');
 const path = require('path');
+const { v4: uuidv4 } = require('uuid');
+
+const UPLOADS_DIR = path.join(__dirname, '../../public/uploads');
+
+// Ensure directory exists
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
 
 /**
- * Upload a file buffer to Firebase Storage and return the public URL.
+ * Save a file buffer to the local disk and return its public URL path.
  */
 async function uploadToStorage(fileBuffer, originalName, folder = 'products') {
-  const ext = path.extname(originalName);
-  const fileName = `${folder}/${uuidv4()}${ext}`;
-  const file = bucket.file(fileName);
+  const ext = path.extname(originalName) || '.jpg';
+  const fileName = `${uuidv4()}${ext}`;
+  const folderPath = path.join(UPLOADS_DIR, folder);
+  
+  if (!fs.existsSync(folderPath)) {
+    fs.mkdirSync(folderPath, { recursive: true });
+  }
 
-  const token = uuidv4();
+  const filePath = path.join(folderPath, fileName);
+  fs.writeFileSync(filePath, fileBuffer);
 
-  await file.save(fileBuffer, {
-    metadata: {
-      contentType: getContentType(ext),
-      metadata: {
-        firebaseStorageDownloadTokens: token,
-      },
-    },
-  });
-
-  const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(fileName)}?alt=media&token=${token}`;
-  return publicUrl;
-}
-
-function getContentType(ext) {
-  const types = {
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.png': 'image/png',
-    '.gif': 'image/gif',
-    '.webp': 'image/webp',
-    '.svg': 'image/svg+xml',
-  };
-  return types[ext.toLowerCase()] || 'application/octet-stream';
+  return `/uploads/${folder}/${fileName}`;
 }
 
 /**
- * Delete a file from Firebase Storage by URL.
+ * Delete a file from the local disk by URL.
  */
 async function deleteFromStorage(fileUrl) {
   try {
-    const urlPath = decodeURIComponent(fileUrl.split('/o/')[1].split('?')[0]);
-    await bucket.file(urlPath).delete();
-    return true;
+    if (!fileUrl.startsWith('/uploads/')) return false;
+    
+    // Convert /uploads/products/xyz.jpg to local path
+    const relativePath = fileUrl.replace('/uploads/', '');
+    const filePath = path.join(UPLOADS_DIR, relativePath);
+    
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      return true;
+    }
+    return false;
   } catch (err) {
     console.error('Storage delete error:', err.message);
     return false;

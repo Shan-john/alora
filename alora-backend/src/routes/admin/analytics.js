@@ -1,68 +1,49 @@
 const express = require('express');
 const router = express.Router();
-const { db } = require('../../config/firebase');
+const { pool } = require('../../config/database');
 
-// GET /api/admin/dashboard — dashboard analytics
+// GET /api/admin/dashboard — Overview metrics
 router.get('/', async (req, res) => {
   try {
-    // Get all orders
-    const ordersSnapshot = await db.collection('orders').get();
-    const orders = ordersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const metrics = {
+      totalRevenue: 0,
+      totalOrders: 0,
+      productsCount: 0,
+      recentOrders: []
+    };
 
-    // Calculate KPIs
-    const totalOrders = orders.length;
-    const pendingOrders = orders.filter(o => o.status === 'pending').length;
+    // Revenue & Total Orders
+    const { rows: orderStats } = await pool.query('SELECT SUM(total) as revenue, COUNT(id) as count FROM orders');
+    if (orderStats.length > 0) {
+      metrics.totalRevenue = Number(orderStats[0].revenue) || 0;
+      metrics.totalOrders = Number(orderStats[0].count) || 0;
+    }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const ordersToday = orders.filter(o => {
-      const created = o.createdAt?.toDate?.() || new Date(o.createdAt);
-      return created >= today;
-    }).length;
+    // Products Count
+    const { rows: prodStats } = await pool.query('SELECT COUNT(id) as count FROM products');
+    if (prodStats.length > 0) {
+      metrics.productsCount = Number(prodStats[0].count) || 0;
+    }
 
-    const confirmedStatuses = ['confirmed', 'processing', 'packed', 'shipped', 'delivered'];
-    const revenue = orders
-      .filter(o => confirmedStatuses.includes(o.status))
-      .reduce((sum, o) => sum + (o.total || 0), 0);
+    // Recent 5 Orders
+    const { rows: recentOrders } = await pool.query(`
+      SELECT 
+        id as "orderId", 
+        customer_name as "customerName", 
+        total, 
+        status, 
+        created_at as "createdAt" 
+      FROM orders 
+      ORDER BY created_at DESC 
+      LIMIT 5
+    `);
+    
+    metrics.recentOrders = recentOrders;
 
-    // Low stock products
-    const settingsDoc = await db.collection('settings').doc('store').get();
-    const threshold = settingsDoc.exists ? (settingsDoc.data().lowStockThreshold || 5) : 5;
-    const productsSnapshot = await db.collection('products')
-      .where('status', '==', 'active')
-      .get();
-    const lowStockProducts = productsSnapshot.docs
-      .map(doc => ({ id: doc.id, ...doc.data() }))
-      .filter(p => p.stock <= threshold);
-
-    // Pending reviews count
-    const pendingReviewsSnapshot = await db.collection('reviews')
-      .where('isApproved', '==', false)
-      .get();
-
-    // Recent orders
-    const recentOrders = orders
-      .sort((a, b) => {
-        const aTime = a.createdAt?.toDate?.()?.getTime() || 0;
-        const bTime = b.createdAt?.toDate?.()?.getTime() || 0;
-        return bTime - aTime;
-      })
-      .slice(0, 10);
-
-    res.json({
-      kpis: {
-        totalOrders,
-        pendingOrders,
-        ordersToday,
-        revenue: Math.round(revenue * 100) / 100,
-      },
-      lowStockProducts,
-      pendingReviewsCount: pendingReviewsSnapshot.size,
-      recentOrders,
-    });
+    res.json(metrics);
   } catch (err) {
-    console.error('Admin GET /dashboard error:', err);
-    res.status(500).json({ error: 'Failed to fetch dashboard data' });
+    console.error('GET /admin/dashboard error:', err);
+    res.status(500).json({ error: 'Failed to fetch analytics' });
   }
 });
 

@@ -1,42 +1,31 @@
 const express = require('express');
 const router = express.Router();
-const { db, admin } = require('../../config/firebase');
-const { sendTestEmail } = require('../../services/email');
+const { pool } = require('../../config/database');
 
 // GET /api/admin/settings
 router.get('/', async (req, res) => {
   try {
-    const doc = await db.collection('settings').doc('store').get();
-    res.json({ settings: doc.exists ? doc.data() : {} });
+    const { rows } = await pool.query('SELECT setting_value FROM settings WHERE setting_key = $1', ['store']);
+    if (rows.length === 0) return res.json({ settings: {} });
+    res.json({ settings: rows[0].setting_value });
   } catch (err) {
-    console.error('Admin GET /settings error:', err);
+    console.error('GET /admin/settings error:', err);
     res.status(500).json({ error: 'Failed to fetch settings' });
   }
 });
 
-// PATCH /api/admin/settings — update store settings
-router.patch('/', async (req, res) => {
+// PUT /api/admin/settings
+router.put('/', async (req, res) => {
   try {
-    const updates = req.body;
-    updates.updatedAt = admin.firestore.FieldValue.serverTimestamp();
-
-    await db.collection('settings').doc('store').set(updates, { merge: true });
-    res.json({ message: 'Settings updated' });
+    const settings = req.body;
+    await pool.query(
+      'INSERT INTO settings (setting_key, setting_value) VALUES ($1, $2) ON CONFLICT (setting_key) DO UPDATE SET setting_value = EXCLUDED.setting_value, updated_at = CURRENT_TIMESTAMP',
+      ['store', JSON.stringify(settings)]
+    );
+    res.json({ message: 'Settings updated successfully' });
   } catch (err) {
-    console.error('Admin PATCH /settings error:', err);
+    console.error('PUT /admin/settings error:', err);
     res.status(500).json({ error: 'Failed to update settings' });
-  }
-});
-
-// POST /api/admin/settings/test-email
-router.post('/test-email', async (req, res) => {
-  try {
-    const { email } = req.body;
-    await sendTestEmail(email || req.user.email);
-    res.json({ message: 'Test email sent successfully' });
-  } catch (err) {
-    console.error('Admin POST /settings/test-email error:', err);
-    res.status(500).json({ error: 'Failed to send test email: ' + err.message });
   }
 });
 

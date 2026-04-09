@@ -1,140 +1,76 @@
 const express = require('express');
 const router = express.Router();
-const { db, admin } = require('../../config/firebase');
-const multer = require('multer');
-const { body, validationResult } = require('express-validator');
-const { uploadToStorage } = require('../../services/storage');
+const { pool } = require('../../config/database');
+const { v4: uuidv4 } = require('uuid');
 
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
-
-// GET /api/admin/products — all products (any status)
+// GET /api/admin/products
 router.get('/', async (req, res) => {
   try {
-    const { status, category, search } = req.query;
-    let query = db.collection('products');
-
-    if (status && status !== 'all') {
-      query = query.where('status', '==', status);
-    }
-    if (category) {
-      query = query.where('category', '==', category);
-    }
-
-    query = query.orderBy('createdAt', 'desc');
-    const snapshot = await query.get();
-    let products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-    if (search) {
-      const s = search.toLowerCase();
-      products = products.filter(p => p.name.toLowerCase().includes(s));
-    }
-
-    res.json({ products });
+    const { rows } = await pool.query('SELECT p.*, (SELECT json_agg(image_url ORDER BY display_order) FROM product_images WHERE product_id = p.id) as images FROM products p ORDER BY created_at DESC');
+    res.json({ products: rows });
   } catch (err) {
-    console.error('Admin GET /products error:', err);
+    console.error('GET /admin/products error:', err);
     res.status(500).json({ error: 'Failed to fetch products' });
   }
 });
 
-// POST /api/admin/products — create product
-router.post('/', upload.array('images', 10), async (req, res) => {
+// POST /api/admin/products
+router.post('/', async (req, res) => {
   try {
-    const data = JSON.parse(req.body.data || '{}');
-    const { name, slug, description, price, salePrice, category, tags, stock, variants, status, isBestSeller, isTrendingIG } = data;
+    const { slug, name, description, price, salePrice, category, stock, isBestSeller, isTrendingIG, status, images } = req.body;
+    const id = uuidv4();
+    
+    await pool.query(
+      'INSERT INTO products (id, slug, name, description, price, sale_price, category_slug, stock, is_best_seller, is_trending_ig, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)',
+      [id, slug, name, description, price, salePrice || null, category, stock || 0, isBestSeller || false, isTrendingIG || false, status || 'active']
+    );
 
-    if (!name || !price) {
-      return res.status(400).json({ error: 'Name and price are required' });
-    }
-
-    // Upload images
-    const imageUrls = [];
-    if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
-        const url = await uploadToStorage(file.buffer, file.originalname, 'products');
-        imageUrls.push(url);
+    if (images && images.length > 0) {
+      for (let i = 0; i < images.length; i++) {
+        await pool.query('INSERT INTO product_images (product_id, image_url, display_order) VALUES ($1, $2, $3)', [id, images[i], i]);
       }
     }
 
-    const productData = {
-      name,
-      slug: slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
-      description: description || '',
-      price: parseFloat(price),
-      salePrice: salePrice ? parseFloat(salePrice) : null,
-      images: imageUrls.length > 0 ? imageUrls : (data.images || []),
-      category: category || '',
-      tags: tags || [],
-      stock: parseInt(stock) || 0,
-      variants: variants || { sizes: [], colors: [] },
-      isBestSeller: isBestSeller || false,
-      isTrendingIG: isTrendingIG || false,
-      status: status || 'draft',
-      rating: 0,
-      reviewCount: 0,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    };
-
-    const docRef = await db.collection('products').add(productData);
-    res.status(201).json({ id: docRef.id, ...productData });
+    res.status(201).json({ id, message: 'Product created successfully' });
   } catch (err) {
-    console.error('Admin POST /products error:', err);
+    console.error('POST /admin/products error:', err);
     res.status(500).json({ error: 'Failed to create product' });
   }
 });
 
-// PATCH /api/admin/products/:id — update product
-router.patch('/:id', upload.array('images', 10), async (req, res) => {
+// PUT /api/admin/products/:id
+router.put('/:id', async (req, res) => {
   try {
-    const data = JSON.parse(req.body.data || req.body || '{}');
-    const docRef = db.collection('products').doc(req.params.id);
-    const doc = await docRef.get();
+    const { slug, name, description, price, salePrice, category, stock, isBestSeller, isTrendingIG, status, images } = req.body;
+    
+    await pool.query(
+      'UPDATE products SET slug = $1, name = $2, description = $3, price = $4, sale_price = $5, category_slug = $6, stock = $7, is_best_seller = $8, is_trending_ig = $9, status = $10, updated_at = CURRENT_TIMESTAMP WHERE id = $11',
+      [slug, name, description, price, salePrice || null, category, stock || 0, isBestSeller || false, isTrendingIG || false, status || 'active', req.params.id]
+    );
 
-    if (!doc.exists) {
-      return res.status(404).json({ error: 'Product not found' });
-    }
-
-    // Upload new images if provided
-    if (req.files && req.files.length > 0) {
-      const newUrls = [];
-      for (const file of req.files) {
-        const url = await uploadToStorage(file.buffer, file.originalname, 'products');
-        newUrls.push(url);
+    // Replace images completely
+    if (images) {
+      await pool.query('DELETE FROM product_images WHERE product_id = $1', [req.params.id]);
+      for (let i = 0; i < images.length; i++) {
+        await pool.query('INSERT INTO product_images (product_id, image_url, display_order) VALUES ($1, $2, $3)', [req.params.id, images[i], i]);
       }
-      data.images = [...(data.images || []), ...newUrls];
     }
 
-    data.updatedAt = admin.firestore.FieldValue.serverTimestamp();
-
-    // Convert numeric strings
-    if (data.price) data.price = parseFloat(data.price);
-    if (data.salePrice) data.salePrice = parseFloat(data.salePrice);
-    if (data.stock) data.stock = parseInt(data.stock);
-
-    await docRef.update(data);
-    res.json({ id: req.params.id, ...data });
+    res.json({ message: 'Product updated successfully' });
   } catch (err) {
-    console.error('Admin PATCH /products error:', err);
+    console.error('PUT /admin/products error:', err);
     res.status(500).json({ error: 'Failed to update product' });
   }
 });
 
-// DELETE /api/admin/products/:id — soft delete (archive)
+// DELETE /api/admin/products/:id
 router.delete('/:id', async (req, res) => {
   try {
-    const docRef = db.collection('products').doc(req.params.id);
-    const doc = await docRef.get();
-    if (!doc.exists) {
-      return res.status(404).json({ error: 'Product not found' });
-    }
-    await docRef.update({
-      status: 'archived',
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
-    res.json({ message: 'Product archived' });
+    await pool.query('DELETE FROM products WHERE id = $1', [req.params.id]);
+    res.json({ message: 'Product deleted successfully' });
   } catch (err) {
-    console.error('Admin DELETE /products error:', err);
-    res.status(500).json({ error: 'Failed to archive product' });
+    console.error('DELETE /admin/products error:', err);
+    res.status(500).json({ error: 'Failed to delete product' });
   }
 });
 
