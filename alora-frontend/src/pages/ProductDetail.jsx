@@ -209,7 +209,6 @@ export default function ProductDetail() {
       "",
       "*Product Details:*",
       `- Product: ${product.name}`,
-      `- Product ID: ${product.id}`,
       `- Quantity: ${quantity}`,
       `- Total: ${formatPrice(currentPrice * quantity)}`,
       `- Product page: ${window.location.href}`,
