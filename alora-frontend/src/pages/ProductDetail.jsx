@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { ShoppingBag, MessageCircle, Heart, ChevronRight, Minus, Plus, Truck, RefreshCw, ShieldCheck } from 'lucide-react';
+import { ShoppingBag, MessageCircle, Heart, ChevronRight, ChevronLeft, Minus, Plus, Truck, RefreshCw, ShieldCheck, Maximize2 } from 'lucide-react';
 import { InstagramIcon as Instagram } from '../components/common/Icons';
 import { api } from '../utils/api';
 import { useCart } from '../context/CartContext';
@@ -72,98 +72,110 @@ export default function ProductDetail() {
         <meta property="og:image" content={product.images?.[0]} />
       </Helmet>
 
-      <div className="pt-20 sm:pt-24 pb-16 bg-ivory">
-        {/* Breadcrumb */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-2 text-xs text-stone-500 font-body">
-            <Link to="/" className="hover:text-gold transition-colors">Home</Link>
-            <ChevronRight size={12} />
-            <Link to="/shop" className="hover:text-gold transition-colors">Shop</Link>
-            <ChevronRight size={12} />
-            <span className="text-charcoal">{product.name}</span>
+      <div className="pt-24 sm:pt-32 pb-16 bg-[#fafafa]">
+               {/* Breadcrumb Bar */}
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-4 border-b border-[#eaeaea]">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-2 text-[13px] text-[#777] font-body">
+              <Link to="/" className="hover:text-charcoal transition-colors">Home</Link>
+              <ChevronRight size={12} strokeWidth={1.5} className="text-[#ccc]" />
+              <Link to="/shop" className="hover:text-charcoal transition-colors">Shop</Link>
+              <ChevronRight size={12} strokeWidth={1.5} className="text-[#ccc]" />
+              {product.categorySlug && (
+                <>
+                  <Link to={`/shop?category=${product.categorySlug}`} className="hover:text-charcoal transition-colors capitalize">
+                    {product.categorySlug.replace(/-/g, ' ')}
+                  </Link>
+                  <ChevronRight size={12} strokeWidth={1.5} className="text-[#ccc]" />
+                </>
+              )}
+              <span className="text-charcoal">{product.name}</span>
+            </div>
+            {/* Nav Arrows */}
+            <div className="hidden sm:flex items-center gap-2 text-[#999]">
+              <button className="hover:text-charcoal transition-colors"><ChevronLeft size={16} strokeWidth={1.5} /></button>
+              <button className="hover:text-charcoal transition-colors"><ChevronRight size={16} strokeWidth={1.5} /></button>
+            </div>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-            {/* Image Gallery */}
-            <div className="space-y-4">
-              <motion.div
-                key={selectedImage}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="aspect-[3/4] rounded-xl overflow-hidden bg-warm"
-              >
-                <img
-                  src={product.images?.[selectedImage] || product.images?.[0]}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
-              </motion.div>
-              {product.images?.length > 1 && (
-                <div className="flex gap-3 overflow-x-auto no-scrollbar">
-                  {product.images.map((img, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setSelectedImage(i)}
-                      className={`flex-shrink-0 w-16 h-20 rounded-lg overflow-hidden border-2 transition-all ${
-                        selectedImage === i ? 'border-gold' : 'border-transparent opacity-60 hover:opacity-100'
-                      }`}
-                    >
-                      <img src={img} alt="" className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Product Info */}
-            <div className="lg:py-4">
-              {product.isTrendingIG && (
-                <Badge color="amber" className="mb-3">🔥 Trending on Instagram</Badge>
-              )}
-
-              <h1 className="font-display text-3xl sm:text-4xl font-semibold text-charcoal mb-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex flex-col lg:flex-row gap-10 lg:gap-14 text-center lg:text-left">
+            
+            {/* Left Column: Product Info (Title, Price, Desc) */}
+            <div className="w-full lg:w-[28%] order-2 lg:order-1 flex flex-col pt-2 shrink-0">
+              <h1 className="font-display text-[32px] lg:text-[40px] text-[#222] mb-3 leading-[1.1] font-light tracking-[0.01em]">
                 {product.name}
               </h1>
 
               {product.rating > 0 && (
-                <div className="mb-4">
-                  <StarRating rating={product.rating} size={16} showCount count={product.reviewCount} />
+                <div className="flex items-center justify-center lg:justify-start gap-2 mb-4">
+                  <StarRating rating={product.rating} size={14} showCount={false} />
+                  <span className="font-body text-[13px] text-[#555]">({product.reviewCount} customer review)</span>
                 </div>
               )}
 
-              <div className="flex items-baseline gap-3 mb-6">
-                <span className="font-display text-3xl font-semibold text-charcoal">
+              <div className="flex items-baseline justify-center lg:justify-start gap-3 mb-6">
+                <span className="font-body text-[22px] lg:text-[24px] text-[#222] font-medium">
                   {formatPrice(currentPrice)}
                 </span>
                 {hasDiscount && (
-                  <>
-                    <span className="text-lg text-stone-400 line-through font-body">
-                      {formatPrice(product.price)}
-                    </span>
-                    <Badge color="red">-{discount}%</Badge>
-                  </>
+                  <span className="text-[16px] text-[#999] line-through font-body font-light">
+                    {formatPrice(product.price)}
+                  </span>
                 )}
               </div>
 
-              <p className="text-stone-600 text-sm leading-relaxed mb-6 font-body">
+              <p className="font-body text-[#777] text-[14px] leading-[1.8] mb-6 max-w-sm mx-auto lg:mx-0 font-light text-justify sm:text-left">
                 {product.description}
               </p>
 
+              {/* Availability */}
+              <div className="mb-4 font-body text-[14px] font-light">
+                <span className="text-[#555]">Availability: </span>
+                <span className="text-[#84b954]">In Stock</span>
+              </div>
+              
+              {hasDiscount && (
+                <div className="flex justify-center lg:justify-start mt-2">
+                  <span className="bg-[#84b954] text-white px-2 py-0.5 rounded-[3px] font-body text-[12px] font-bold tracking-wider">
+                    Discount {discountPercent(product.price, product.salePrice)}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Center Column: Big Image */}
+            <div className="w-full lg:w-[42%] order-1 lg:order-2 flex justify-center items-start shrink-0 relative bg-white p-6 sm:p-10 border border-[#eaeaea]">
+              <motion.img
+                key={selectedImage}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                src={product.images?.[selectedImage] || product.images?.[0]}
+                alt={product.name}
+                className="w-full object-contain cursor-crosshair mx-auto"
+              />
+              <button className="absolute top-4 right-4 w-9 h-9 bg-white shadow-sm flex items-center justify-center rounded-full text-[#555] hover:text-charcoal transition-colors border border-[#eaeaea]">
+                 <Maximize2 size={16} strokeWidth={1.5} />
+              </button>
+            </div>
+
+            {/* Right Column: Actions (Cart, Enquire, Trust) */}
+            <div className="w-full lg:w-[30%] order-3 lg:order-3 shrink-0">
+              
               {/* Variants */}
               {product.variants?.sizes?.length > 0 && (
-                <div className="mb-4">
-                  <label className="text-xs tracking-widest uppercase font-body text-stone-500 mb-2 block">Size</label>
+                <div className="mb-5">
+                  <label className="font-body text-[13px] text-[#222] mb-2 block text-left">Size</label>
                   <div className="flex flex-wrap gap-2">
                     {product.variants.sizes.map(size => (
                       <button
                         key={size}
                         onClick={() => setSelectedVariant(size)}
-                        className={`py-2 px-4 border rounded text-sm transition-all cursor-pointer ${
+                        className={`min-w-[40px] h-[40px] px-3 flex items-center justify-center border font-body text-[13px] transition-all bg-white ${
                           selectedVariant === size
-                            ? 'border-gold bg-gold/10 text-gold'
-                            : 'border-stone-200 text-charcoal hover:border-gold'
+                            ? 'border-charcoal text-charcoal'
+                            : 'border-[#eaeaea] text-[#777] hover:border-charcoal'
                         }`}
                       >
                         {size}
@@ -173,73 +185,107 @@ export default function ProductDetail() {
                 </div>
               )}
 
-              {product.variants?.colors?.length > 0 && (
-                <div className="mb-6">
-                  <label className="text-xs tracking-widest uppercase font-body text-stone-500 mb-2 block">Color</label>
-                  <div className="flex flex-wrap gap-2">
-                    {product.variants.colors.map(color => (
-                      <button
-                        key={color}
-                        onClick={() => setSelectedVariant(color)}
-                        className={`py-2 px-4 border rounded text-sm transition-all cursor-pointer ${
-                          selectedVariant === color
-                            ? 'border-gold bg-gold/10 text-gold'
-                            : 'border-stone-200 text-charcoal hover:border-gold'
-                        }`}
-                      >
-                        {color}
-                      </button>
-                    ))}
-                  </div>
+              {/* Input + Buy Row */}
+              <div className="flex gap-4 mb-3">
+                <div className="flex items-center border border-[#eaeaea] h-[50px] w-24 shrink-0 bg-white">
+                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-[30px] h-full flex items-center justify-center text-[#999] hover:text-charcoal transition-colors">
+                    <Minus size={14} strokeWidth={1.5} />
+                  </button>
+                  <input 
+                    type="text" 
+                    value={quantity} 
+                    readOnly 
+                    className="flex-1 h-full text-center font-body text-[14px] text-[#222] bg-transparent outline-none w-full border-x border-[#eaeaea]" 
+                  />
+                  <button onClick={() => setQuantity(quantity + 1)} className="w-[30px] h-full flex items-center justify-center text-[#999] hover:text-charcoal transition-colors">
+                    <Plus size={14} strokeWidth={1.5} />
+                  </button>
                 </div>
-              )}
+                
+                <a 
+                  href={`https://wa.me/919497711275?text=Hi! I want to enquire about ${product.name} (${formatPrice(currentPrice)}).`}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex-1 h-[50px] bg-[#222] text-white font-body text-[12px] font-bold tracking-[0.05em] uppercase flex items-center justify-center hover:bg-black transition-colors"
+                >
+                  Confirm on WhatsApp
+                </a>
+              </div>
 
-              {/* Quantity */}
-              <div className="mb-6">
-                <label className="text-xs tracking-widest uppercase font-body text-stone-500 mb-2 block">Quantity</label>
-                <div className="flex items-center border border-stone-200 rounded inline-flex">
-                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-3 hover:text-gold transition-colors">
-                    <Minus size={14} />
+              {/* Secondary CTA */}
+              <a 
+                href="https://instagram.com/alorabytrio"
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-full h-[50px] bg-[#ebebeb] text-[#222] font-body text-[12px] font-bold tracking-[0.05em] uppercase flex items-center justify-center hover:bg-[#e0e0e0] transition-colors mb-7"
+              >
+                Buy via Instagram
+              </a>
+
+              {/* Links List */}
+              <div className="mb-6 space-y-3 font-body text-[13px] text-[#555] text-left">
+                <button className="flex items-center gap-2 hover:text-[#222] transition-colors pb-1">
+                  <Heart size={15} strokeWidth={1.5} /> Add to wishlist
+                </button>
+                <div className="flex items-center gap-6">
+                  <button className="flex items-center gap-2 hover:text-[#222] transition-colors">
+                    <RefreshCw size={15} strokeWidth={1.5} /> Delivery & Return
                   </button>
-                  <span className="px-4 text-sm font-medium">{quantity}</span>
-                  <button onClick={() => setQuantity(quantity + 1)} className="p-3 hover:text-gold transition-colors">
-                    <Plus size={14} />
+                  <button className="flex items-center gap-2 hover:text-[#222] transition-colors">
+                    <MessageCircle size={15} strokeWidth={1.5} /> Ask a Question
                   </button>
+                </div>
+                <div className="flex items-center gap-2 pt-1">
+                  <Truck size={15} strokeWidth={1.5} />
+                  <span>Estimated Delivery: <span className="text-[#222]">3 - 7 Business Days</span></span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                  <span><strong className="text-[#222] font-medium">49</strong> People viewing this right now!</span>
                 </div>
               </div>
 
-              {/* CTA Buttons */}
-              <div className="space-y-3 mb-8">
-                <Button onClick={handleAddToCart} variant="solid" className="w-full" size="lg">
-                  <ShoppingBag size={16} className="mr-2" />
-                  Add to Cart — {formatPrice(currentPrice * quantity)}
-                </Button>
-                <div className="grid grid-cols-2 gap-3">
-                  <Button onClick={() => { handleAddToCart(); setCheckoutOpen(true); }} variant="solid" size="md">
-                    <Instagram size={14} className="mr-1.5" />
-                    Buy via IG DM
-                  </Button>
-                  <Button onClick={() => { handleAddToCart(); setCheckoutOpen(true); }} variant="outline" size="md">
-                    <MessageCircle size={14} className="mr-1.5" />
-                    WhatsApp
-                  </Button>
+              {/* Trust Features Grid */}
+              <div className="grid grid-cols-4 gap-2 mb-8 pt-5 text-center border-t border-[#eaeaea]">
+                <div className="flex flex-col items-center justify-center pt-2">
+                  <Truck size={22} strokeWidth={1} className="mb-2 text-[#444]" />
+                  <span className="font-body text-[11px] text-[#777] leading-[1.2]">Free<br/>Shipping</span>
+                </div>
+                <div className="flex flex-col items-center justify-center pt-2">
+                  <ShieldCheck size={22} strokeWidth={1} className="mb-2 text-[#444]" />
+                  <span className="font-body text-[11px] text-[#777] leading-[1.2]">1 Year<br/>Warranty</span>
+                </div>
+                <div className="flex flex-col items-center justify-center pt-2">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mb-2 text-[#444]">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16H4V4h10v2h-2z" />
+                    <rect x="8" y="6" width="12" height="16" rx="2" />
+                  </svg>
+                  <span className="font-body text-[11px] text-[#777] leading-[1.2]">Secure<br/>payment</span>
+                </div>
+                <div className="flex flex-col items-center justify-center pt-2">
+                  <RefreshCw size={22} strokeWidth={1} className="mb-2 text-[#444]" />
+                  <span className="font-body text-[11px] text-[#777] leading-[1.2]">30 Days<br/>Return</span>
                 </div>
               </div>
 
-              {/* Trust indicators */}
-              <div className="border-t border-stone-200 pt-6 space-y-3">
-                <div className="flex items-center gap-3 text-sm text-stone-600">
-                  <Truck size={16} className="text-gold" />
-                  <span>Free shipping on orders above ₹999</span>
+              {/* Safe Checkout Badges */}
+              <div className="border border-[#eaeaea] bg-white pt-5 pb-3 px-3 text-center relative mb-8 flex justify-center mt-2 rounded-[2px]">
+                <span className="absolute -top-[10px] left-1/2 -translate-x-1/2 bg-[#fafafa] px-2 font-display text-[12px] font-bold text-[#222] tracking-wide w-[max-content]">
+                  Guaranteed Safe Checkout
+                </span>
+                <div className="flex items-center justify-center gap-3 w-full">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" className="h-[14px] object-contain brightness-0" />
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-[16px] object-contain brightness-0" />
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-[12px] object-contain brightness-0" />
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple Pay" className="h-[14px] object-contain" />
                 </div>
-                <div className="flex items-center gap-3 text-sm text-stone-600">
-                  <RefreshCw size={16} className="text-gold" />
-                  <span>Easy 7-day returns</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm text-stone-600">
-                  <ShieldCheck size={16} className="text-gold" />
-                  <span>100% authentic & quality guaranteed</span>
-                </div>
+              </div>
+
+              <div className="font-body text-[13px] text-left pt-2 border-t border-[#eaeaea]">
+                <span className="text-[#222] mr-2">Category:</span> 
+                <Link to={`/shop?category=${product.categorySlug}`} className="text-[#777] hover:text-gold transition-colors capitalize hidden lg:inline">
+                  {product.categorySlug?.replace(/-/g, ' ')}
+                </Link>
               </div>
             </div>
           </div>

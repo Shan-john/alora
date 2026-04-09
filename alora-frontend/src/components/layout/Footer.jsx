@@ -154,9 +154,12 @@ export default function Footer({ settings = {} }) {
         style={{ borderTop: '1px solid #e5e5e5', padding: '22px 15px' }}
       >
         <div className="flex flex-col sm:flex-row items-center justify-between" style={{ gap: '10px' }}>
-          <p className="font-body" style={{ fontSize: '14px', color: '#777' }}>
-            © {year} Alora by Trio. All rights reserved.
-          </p>
+          <div className="flex items-center gap-4">
+            <img src="/logo.png" alt="Alora Logo" className="h-8 w-auto opacity-80" onError={(e) => { e.target.style.display = 'none'; }} />
+            <p className="font-body" style={{ fontSize: '14px', color: '#777' }}>
+              © {year} Alora by Trio. All rights reserved.
+            </p>
+          </div>
           <div className="flex items-center" style={{ gap: '24px' }}>
             {['Privacy Policy', 'Returns'].map(item => (
               <Link

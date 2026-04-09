@@ -2,13 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-
-import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { api } from '../../utils/api';
-
 export default function Hero({ slides = [] }) {
   const [current, setCurrent] = useState(0);
   const [heroSlides, setHeroSlides] = useState(slides);

@@ -80,13 +80,24 @@ export default function Navbar() {
             </div>
 
             {/* Center — Logo */}
-            <Link to="/" className="absolute left-1/2 -translate-x-1/2">
-              <h1 className="font-display text-[28px] lg:text-[32px] font-semibold text-charcoal tracking-wide leading-none">
-                Alora
-              </h1>
-              <p className="text-[7px] tracking-[4px] uppercase text-gold text-center -mt-0.5 font-body">
-                by Trio
-              </p>
+            <Link to="/" className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center flex-col">
+              <img 
+                src="/logo.png" 
+                alt="Alora by Trio" 
+                className="h-[46px] sm:h-[52px] w-auto object-contain"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextElementSibling.style.display = 'block';
+                }}
+              />
+              <div className="hidden text-center">
+                <span className="font-display text-[28px] sm:text-[32px] font-semibold text-charcoal tracking-wide leading-none block">
+                  Alora
+                </span>
+                <span className="text-[8px] tracking-[4px] uppercase text-gold text-center -mt-0.5 font-body block">
+                  by Trio
+                </span>
+              </div>
             </Link>
 
             {/* Right — Icons */}
