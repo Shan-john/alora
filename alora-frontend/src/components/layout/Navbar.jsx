@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Search, Heart, ShoppingBag, User, Menu, X, ChevronRight } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const navLinks = [
@@ -17,7 +18,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const { itemCount } = useCart();
+  const { totalWishlistItems } = useWishlist();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,8 +29,10 @@ export default function Navbar() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/shop?search=${searchQuery}`);
+    const trimmedQuery = searchQuery.trim();
+    if (trimmedQuery) {
+      const params = new URLSearchParams({ search: trimmedQuery });
+      navigate(`/shop?${params.toString()}`);
       setSearchOpen(false);
       setSearchQuery('');
     }
@@ -110,24 +113,15 @@ export default function Navbar() {
                 <Search size={20} strokeWidth={1.5} />
               </button>
 
-              {/* Wishlist */}
-              <Link to="/wishlist" className="hidden sm:block text-charcoal hover:text-black transition-colors">
-                <Heart size={20} strokeWidth={1.5} />
-              </Link>
-
-              {/* Cart */}
-              <Link to="/cart" className="relative text-charcoal hover:text-black transition-colors">
+             
+              {/* Cart / Wishlist Bag */}
+              <Link to="/wishlist" className="relative text-charcoal hover:text-black transition-colors">
                 <ShoppingBag size={20} strokeWidth={1.5} />
-                {itemCount > 0 && (
+                {totalWishlistItems > 0 && (
                   <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-charcoal text-white text-[9px] font-body font-medium rounded-full flex items-center justify-center">
-                    {itemCount}
+                    {totalWishlistItems}
                   </span>
                 )}
-              </Link>
-
-              {/* Account */}
-              <Link to="/account" className="hidden sm:block text-charcoal hover:text-black transition-colors">
-                <User size={20} strokeWidth={1.5} />
               </Link>
 
               {/* Mobile menu */}

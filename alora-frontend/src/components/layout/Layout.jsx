@@ -3,7 +3,6 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Navbar from './Navbar';
 import Footer from './Footer';
-import CartDrawer from './CartDrawer';
 import { api } from '../../utils/api';
 
 export default function Layout() {
@@ -19,14 +18,14 @@ export default function Layout() {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-ivory">
+    <div className="page-shell">
       <Navbar />
-      <CartDrawer />
       <motion.main
         key={location.pathname}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
+        className="relative z-10"
       >
         <Outlet context={{ settings }} />
       </motion.main>

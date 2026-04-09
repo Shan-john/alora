@@ -9,7 +9,7 @@ import GiftingBanner from "../components/home/GiftingBanner";
 import IGSection from "../components/home/IGSection";
 import TrustStrip from "../components/home/TrustStrip";
 import Testimonials from "../components/home/Testimonials";
-import EmailCapture from "../components/home/EmailCapture";
+ 
 
 export default function Home() {
   const { settings } = useOutletContext();
@@ -52,13 +52,11 @@ export default function Home() {
       <Testimonials />
 
       {/* 8. Newsletter signup */}
-      <EmailCapture />
+       
 
       {/* 9. Full-bleed Instagram strip */}
       <IGSection igPosts={settings?.igPosts} />
 
-      {/* 10. Trust strip with subtitles */}
-      <TrustStrip items={settings?.trustItems} />
     </>
   );
 }

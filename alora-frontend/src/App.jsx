@@ -3,14 +3,16 @@ import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { WishlistProvider } from './context/WishlistContext';
 import Layout from './components/layout/Layout';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
+import Collections from './pages/Collections';
+import CollectionItems from './pages/CollectionItems';
 import ProductDetail from './pages/ProductDetail';
+import Wishlist from './pages/Wishlist';
 import About from './pages/About';
 import Contact from './pages/Contact';
-import Login from './pages/Login';
-import Register from './pages/Register';
 import Track from './pages/Track';
 import Checkout from './pages/Checkout';
 import NotFound from './pages/NotFound';
@@ -28,8 +30,9 @@ export default function App() {
     <HelmetProvider>
       <AuthProvider>
         <CartProvider>
-          <BrowserRouter>
-            <Toaster
+          <WishlistProvider>
+            <BrowserRouter>
+              <Toaster
               position="top-center"
               toastOptions={{
                 style: {
@@ -45,11 +48,13 @@ export default function App() {
               <Route element={<Layout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/shop" element={<Shop />} />
+                <Route path="/collections" element={<Collections />} />
+                <Route path="/collections/:slug" element={<CollectionItems />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
+
                 <Route path="/track" element={<Track />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="*" element={<NotFound />} />
@@ -66,7 +71,8 @@ export default function App() {
                 <Route path="settings" element={<AdminSettings />} />
               </Route>
             </Routes>
-          </BrowserRouter>
+            </BrowserRouter>
+          </WishlistProvider>
         </CartProvider>
       </AuthProvider>
     </HelmetProvider>

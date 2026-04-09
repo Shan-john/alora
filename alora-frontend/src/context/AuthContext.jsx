@@ -1,56 +1,33 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthChange, logout as firebaseLogout } from '../firebase/auth';
-import { getDocument } from '../firebase/firestore';
+import { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext();
 
+// Hardcoded admin credentials
+const ADMIN_USERNAME = 'admin';
+const ADMIN_PASSWORD = 'alora2024';
+
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [adminRole, setAdminRole] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(() => {
+    return localStorage.getItem('alora_admin_logged_in') === 'true';
+  });
+  const [loading] = useState(false);
 
-  useEffect(() => {
-    try {
-      const unsubscribe = onAuthChange(async (firebaseUser) => {
-        if (firebaseUser) {
-          setUser(firebaseUser);
-          try {
-            const adminDoc = await getDocument('admins', firebaseUser.uid);
-            if (adminDoc) {
-              setIsAdmin(true);
-              setAdminRole(adminDoc.role);
-            } else {
-              setIsAdmin(false);
-              setAdminRole(null);
-            }
-          } catch {
-            setIsAdmin(false);
-            setAdminRole(null);
-          }
-        } else {
-          setUser(null);
-          setIsAdmin(false);
-          setAdminRole(null);
-        }
-        setLoading(false);
-      });
-      return () => unsubscribe();
-    } catch {
-      setLoading(false);
-      return () => {};
+  const adminLogin = (username, password) => {
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      setIsAdmin(true);
+      localStorage.setItem('alora_admin_logged_in', 'true');
+      return true;
     }
-  }, []);
+    return false;
+  };
 
-  const logout = async () => {
-    await firebaseLogout();
-    setUser(null);
+  const logout = () => {
     setIsAdmin(false);
-    setAdminRole(null);
+    localStorage.removeItem('alora_admin_logged_in');
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAdmin, adminRole, loading, logout }}>
+    <AuthContext.Provider value={{ user: isAdmin ? { displayName: 'Admin' } : null, isAdmin, adminRole: isAdmin ? 'owner' : null, loading, logout, adminLogin }}>
       {children}
     </AuthContext.Provider>
   );

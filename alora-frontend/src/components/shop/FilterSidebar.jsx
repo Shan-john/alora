@@ -9,26 +9,39 @@ export default function FilterSidebar({ onFilter, isOpen, onClose }) {
   const [searchParams] = useSearchParams();
 
   // Local state for the filter UI so it only applies when clicked
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
-  const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '');
-  const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
-  const [sort, setSort] = useState(searchParams.get('sort') || 'newest');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [sort, setSort] = useState('newest');
 
   useEffect(() => {
     api.getCategories()
-      .then(data => setCategories(data.categories || []))
+      .then((data) => setCategories(Array.isArray(data?.categories) ? data.categories : []))
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    setSelectedCategory(searchParams.get('category') || '');
+    setMinPrice(searchParams.get('minPrice') || '');
+    setMaxPrice(searchParams.get('maxPrice') || '');
+    setSort(searchParams.get('sort') || 'newest');
+  }, [searchParams]);
 
   const sortOptions = [
     { value: 'newest', label: 'Newest' },
     { value: 'price_asc', label: 'Price: Low to High' },
     { value: 'price_desc', label: 'Price: High to Low' },
-    { value: 'name_asc', label: 'A — Z' },
+    { value: 'name_asc', label: 'A - Z' },
   ];
 
   const handleApply = () => {
-    onFilter({ search: searchParams.get('search') || '', category: selectedCategory, minPrice, maxPrice, sort });
+    onFilter({
+      search: searchParams.get('search') || '',
+      category: selectedCategory,
+      minPrice,
+      maxPrice,
+      sort,
+    });
     if (onClose) onClose();
   };
 
@@ -37,32 +50,41 @@ export default function FilterSidebar({ onFilter, isOpen, onClose }) {
     setMinPrice('');
     setMaxPrice('');
     setSort('newest');
-    onFilter({ search: '', category: '', minPrice: '', maxPrice: '', sort: 'newest' });
+    onFilter({
+      search: searchParams.get('search') || '',
+      category: '',
+      minPrice: '',
+      maxPrice: '',
+      sort: 'newest',
+    });
     if (onClose) onClose();
   };
 
   const RadioButton = ({ checked, onChange, label }) => (
-    <label className="flex items-center gap-3 cursor-pointer group mb-1.5">
+    <button
+      type="button"
+      onClick={onChange}
+      className="w-full text-left flex items-center gap-3 cursor-pointer group mb-1.5"
+    >
       <div className={`w-[18px] h-[18px] flex items-center justify-center rounded-full border transition-colors ${checked ? 'border-gold bg-gold' : 'border-gray-400 group-hover:border-gold'}`}>
         {checked && <div className="w-[8px] h-[8px] bg-charcoal rounded-full" />}
       </div>
       <span className={`font-body text-[15px] ${checked ? 'text-charcoal font-medium' : 'text-[#444] group-hover:text-charcoal transition-colors'}`}>
         {label}
       </span>
-    </label>
+    </button>
   );
 
   const filterContent = (
     <div className="space-y-8 font-body">
-      
       {/* Sort By Section */}
       <div>
         <h4 className="font-display tracking-[0.1em] text-[20px] text-charcoal mb-4 uppercase font-medium">
           Sort By
         </h4>
         <div className="flex flex-col gap-1.5">
-          {sortOptions.map(opt => (
-            <RadioButton 
+          {sortOptions.map((opt) => (
+            <RadioButton
               key={opt.value}
               checked={sort === opt.value}
               onChange={() => setSort(opt.value)}
@@ -78,19 +100,24 @@ export default function FilterSidebar({ onFilter, isOpen, onClose }) {
           Category
         </h4>
         <div className="flex flex-col gap-1.5">
-          <RadioButton 
+          <RadioButton
             checked={selectedCategory === ''}
             onChange={() => setSelectedCategory('')}
             label="All Categories"
           />
-          {categories.map(cat => (
-            <RadioButton 
-              key={cat.slug}
-              checked={selectedCategory === cat.slug}
-              onChange={() => setSelectedCategory(cat.slug)}
-              label={cat.name}
-            />
-          ))}
+          {categories.map((cat, idx) => {
+            const slug = cat?.slug || '';
+            const name = cat?.name || slug || `Category ${idx + 1}`;
+
+            return (
+              <RadioButton
+                key={slug || name || idx}
+                checked={selectedCategory === slug}
+                onChange={() => setSelectedCategory(slug)}
+                label={name}
+              />
+            );
+          })}
         </div>
       </div>
 
@@ -107,7 +134,7 @@ export default function FilterSidebar({ onFilter, isOpen, onClose }) {
             onChange={(e) => setMinPrice(e.target.value)}
             className="w-full py-2 px-3 bg-transparent border border-[#eaeaea] rounded-[2px] text-[14px] focus:outline-none focus:border-gold transition-colors font-body"
           />
-          <span className="text-[#999]">—</span>
+          <span className="text-[#999]">-</span>
           <input
             type="number"
             placeholder="Max"

@@ -53,7 +53,7 @@ export default function GiftingBanner({ banner = {} }) {
               {subheading}
             </p>
             <Link
-              to="/shop"
+              to="/collections"
               className="underline-link inline-block font-body"
               style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 500 }}
             >

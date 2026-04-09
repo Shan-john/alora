@@ -16,16 +16,20 @@ export default function Shop() {
     setLoading(true);
     try {
       const params = {
-        category: filters.category || searchParams.get('category') || '',
-        minPrice: filters.minPrice || searchParams.get('minPrice') || '',
-        maxPrice: filters.maxPrice || searchParams.get('maxPrice') || '',
-        sort: filters.sort || searchParams.get('sort') || 'newest',
-        search: searchParams.get('search') || '',
+        category: filters.category ?? searchParams.get('category') ?? '',
+        minPrice: filters.minPrice ?? searchParams.get('minPrice') ?? '',
+        maxPrice: filters.maxPrice ?? searchParams.get('maxPrice') ?? '',
+        sort: filters.sort ?? searchParams.get('sort') ?? 'newest',
+        search: filters.search ?? searchParams.get('search') ?? '',
         limit: 40,
       };
 
       // Clean empty params
-      Object.keys(params).forEach(k => !params[k] && delete params[k]);
+      Object.keys(params).forEach((k) => {
+        if (params[k] === '' || params[k] === null || params[k] === undefined) {
+          delete params[k];
+        }
+      });
 
       const data = await api.getProducts(params);
       setProducts(data.products || []);
@@ -41,11 +45,25 @@ export default function Shop() {
   }, [searchParams]);
 
   const handleFilter = (filters) => {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(searchParams);
+
+    if (filters.search !== undefined) {
+      if (filters.search) params.set('search', filters.search);
+      else params.delete('search');
+    }
+
     if (filters.category) params.set('category', filters.category);
+    else params.delete('category');
+
     if (filters.minPrice) params.set('minPrice', filters.minPrice);
+    else params.delete('minPrice');
+
     if (filters.maxPrice) params.set('maxPrice', filters.maxPrice);
+    else params.delete('maxPrice');
+
     if (filters.sort) params.set('sort', filters.sort);
+    else params.delete('sort');
+
     setSearchParams(params);
   };
 
@@ -61,7 +79,7 @@ export default function Shop() {
         {/* Header */}
         <div className="bg-charcoal py-12 sm:py-16 text-center">
           <p className="text-gold text-xs tracking-[4px] uppercase font-body mb-3">Collection</p>
-          <h1 className="font-display text-3xl sm:text-4xl font-semibold text-white">
+          <h1 className="font-display text-3xl sm:text-4xl font-semibold pb-6 text-stone-100">
             {currentCategory
               ? currentCategory.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
               : 'Shop All'}
