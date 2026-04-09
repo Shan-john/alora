@@ -323,9 +323,7 @@ export default function ProductDetail() {
               </div>
 
               <p className="font-body text-[#666] text-[15px] leading-[1.8] mb-6 pr-2">
-                This regulator has a rolled diaphragm and high flow rate with
-                reduced pressure drop.It has an excellent degree of
-                condensation.{" "}
+                 
                 {/* Using standard filler to match reference if description is empty */}
                 {product.description}
               </p>
