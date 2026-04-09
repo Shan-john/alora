@@ -198,7 +198,7 @@ export default function ProductDetail() {
       `- Price each: ${formatPrice(currentPrice)}`,
       `- Total: ${formatPrice(currentPrice * quantity)}`,
       `- Product page: ${window.location.href}`,
-      `- Product image: ${selectedImageUrl || "N/A"}`,
+       
     ];
     return messageLines.join("\n");
   };
@@ -212,7 +212,7 @@ export default function ProductDetail() {
       `- Quantity: ${quantity}`,
       `- Total: ${formatPrice(currentPrice * quantity)}`,
       `- Product page: ${window.location.href}`,
-      `- Product image: ${selectedImageUrl || "N/A"}`,
+       
     ];
     
     if (product.description) {
