@@ -59,8 +59,8 @@ const mapProduct = (row) => ({
   isBestSeller: row.is_best_seller,
   isTrendingIG: row.is_trending_ig,
   status: row.status,
-  rating: Number(row.rating || 0),
-  reviewCount: Number(row.review_count || 0),
+  rating: Number(row.calculated_rating || 0),
+  reviewCount: Number(row.calculated_review_count || 0),
   images: row.images || [],
   createdAt: row.created_at,
   updatedAt: row.updated_at,
@@ -96,8 +96,24 @@ const upsertImages = async (client, productId, images) => {
   }
 };
 
-const getProductsQuery =
-  'SELECT p.*, (SELECT json_agg(image_url ORDER BY display_order) FROM product_images WHERE product_id = p.id) as images FROM products p ORDER BY p.created_at DESC';
+const getProductsQuery = `
+  SELECT
+    p.*,
+    COALESCE(rs.avg_rating, 0) AS calculated_rating,
+    COALESCE(rs.review_count, 0) AS calculated_review_count,
+    (SELECT json_agg(image_url ORDER BY display_order) FROM product_images WHERE product_id = p.id) as images
+  FROM products p
+  LEFT JOIN (
+    SELECT
+      product_id,
+      ROUND(AVG(rating)::numeric, 2) AS avg_rating,
+      COUNT(*)::int AS review_count
+    FROM reviews
+    WHERE is_approved = true
+    GROUP BY product_id
+  ) rs ON rs.product_id = p.id
+  ORDER BY p.created_at DESC
+`;
 
 // GET /api/admin/products
 router.get('/', async (req, res) => {
@@ -114,7 +130,25 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { rows } = await pool.query(
-      'SELECT p.*, (SELECT json_agg(image_url ORDER BY display_order) FROM product_images WHERE product_id = p.id) as images FROM products p WHERE p.id = $1 OR p.slug = $1 LIMIT 1',
+      `
+      SELECT
+        p.*,
+        COALESCE(rs.avg_rating, 0) AS calculated_rating,
+        COALESCE(rs.review_count, 0) AS calculated_review_count,
+        (SELECT json_agg(image_url ORDER BY display_order) FROM product_images WHERE product_id = p.id) as images
+      FROM products p
+      LEFT JOIN (
+        SELECT
+          product_id,
+          ROUND(AVG(rating)::numeric, 2) AS avg_rating,
+          COUNT(*)::int AS review_count
+        FROM reviews
+        WHERE is_approved = true
+        GROUP BY product_id
+      ) rs ON rs.product_id = p.id
+      WHERE p.id = $1 OR p.slug = $1
+      LIMIT 1
+      `,
       [req.params.id]
     );
 

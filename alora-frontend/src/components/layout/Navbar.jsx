@@ -1,30 +1,38 @@
-import { useState, useEffect } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Search, Heart, ShoppingBag, User, Menu, X, ChevronRight } from 'lucide-react';
-import { useCart } from '../../context/CartContext';
-import { useWishlist } from '../../context/WishlistContext';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import {
+  Search,
+  Heart,
+  ShoppingBag,
+  User,
+  Menu,
+  X,
+  ChevronRight,
+} from "lucide-react";
+import { useCart } from "../../context/CartContext";
+import { useWishlist } from "../../context/WishlistContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
-  { name: 'Home', path: '/' },
-  { name: 'Shop', path: '/shop' },
-  { name: 'Collections', path: '/collections' },
-  { name: 'About', path: '/about' },
-  { name: 'Contact', path: '/contact' },
+  { name: "Home", path: "/" },
+  { name: "Shop", path: "/shop" },
+  { name: "Collections", path: "/collections" },
+  { name: "About", path: "/about" },
+  { name: "Contact", path: "/contact" },
 ];
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const { totalWishlistItems } = useWishlist();
   const navigate = useNavigate();
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const handleSearch = (e) => {
@@ -34,7 +42,7 @@ export default function Navbar() {
       const params = new URLSearchParams({ search: trimmedQuery });
       navigate(`/shop?${params.toString()}`);
       setSearchOpen(false);
-      setSearchQuery('');
+      setSearchQuery("");
     }
   };
 
@@ -43,16 +51,15 @@ export default function Navbar() {
       {/* ═══ HEADER — 95px default, 65px sticky ═══ */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 bg-white transition-all duration-300 ${
-          isScrolled ? 'shadow-sm' : ''
+          isScrolled ? "shadow-sm" : ""
         }`}
         style={{
-          height: isScrolled ? '65px' : '95px',
-          borderBottom: '1px solid #e5e5e5',
+          height: isScrolled ? "65px" : "95px",
+          borderBottom: "1px solid #e5e5e5",
         }}
       >
         <div className="container-luxury h-full">
           <div className="flex items-center justify-between h-full">
-            
             {/* Left — Search + Nav (desktop) */}
             <div className="flex items-center gap-8">
               {/* Search icon + text — Alukas style */}
@@ -61,18 +68,22 @@ export default function Navbar() {
                 className="hidden lg:flex items-center gap-2 text-charcoal hover:text-black transition-colors"
               >
                 <Search size={18} strokeWidth={1.5} />
-                <span className="text-[14px] font-body text-charcoal">Search</span>
+                <span className="text-[14px] font-body text-charcoal">
+                  Search
+                </span>
               </button>
 
               {/* Desktop nav */}
               <nav className="hidden lg:flex items-center gap-7">
-                {navLinks.map(link => (
+                {navLinks.map((link) => (
                   <NavLink
                     key={link.path}
                     to={link.path}
                     className={({ isActive }) =>
                       `font-body text-[13px] font-semibold uppercase tracking-[0.05em] transition-colors duration-200 ${
-                        isActive ? 'text-black' : 'text-charcoal hover:text-black'
+                        isActive
+                          ? "text-black"
+                          : "text-charcoal hover:text-black"
                       }`
                     }
                   >
@@ -83,14 +94,17 @@ export default function Navbar() {
             </div>
 
             {/* Center — Logo */}
-            <Link to="/" className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center flex-col">
-              <img 
-                src="/logo.png" 
-                alt="Alora by Trio" 
+            <Link
+              to="/"
+              className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center flex-col"
+            >
+              <img
+                src="/logo.png"
+                alt="Alora by Trio"
                 className="h-[46px] sm:h-[52px] w-auto object-contain"
                 onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.nextElementSibling.style.display = 'block';
+                  e.target.style.display = "none";
+                  e.target.nextElementSibling.style.display = "block";
                 }}
               />
               <div className="hidden text-center">
@@ -113,9 +127,11 @@ export default function Navbar() {
                 <Search size={20} strokeWidth={1.5} />
               </button>
 
-             
               {/* Cart / Wishlist Bag */}
-              <Link to="/wishlist" className="relative text-charcoal hover:text-black transition-colors">
+              <Link
+                to="/wishlist"
+                className="relative text-charcoal hover:text-black transition-colors"
+              >
                 <ShoppingBag size={20} strokeWidth={1.5} />
                 {totalWishlistItems > 0 && (
                   <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-charcoal text-white text-[9px] font-body font-medium rounded-full flex items-center justify-center">
@@ -137,7 +153,7 @@ export default function Navbar() {
       </header>
 
       {/* Spacer — matches header height */}
-      <div style={{ height: '95px' }} />
+      <div style={{ height: "95px" }} />
 
       {/* ═══ SEARCH OVERLAY ═══ */}
       <AnimatePresence>
@@ -164,7 +180,10 @@ export default function Navbar() {
                   autoFocus
                   className="w-full py-4 border-b-2 border-charcoal bg-transparent text-charcoal text-[24px] font-display font-medium placeholder:text-[#ccc] focus:outline-none"
                 />
-                <button type="submit" className="absolute right-0 top-1/2 -translate-y-1/2 text-charcoal">
+                <button
+                  type="submit"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 text-charcoal"
+                >
                   <Search size={22} strokeWidth={1.5} />
                 </button>
               </div>
@@ -185,20 +204,25 @@ export default function Navbar() {
               onClick={() => setMobileOpen(false)}
             />
             <motion.div
-              initial={{ x: '100%' }}
+              initial={{ x: "100%" }}
               animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'tween', duration: 0.3 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "tween", duration: 0.3 }}
               className="fixed top-0 right-0 bottom-0 z-[56] w-[320px] bg-white overflow-y-auto"
             >
               <div className="flex items-center justify-between p-5 border-b border-[#e5e5e5]">
-                <span className="font-display text-[22px] font-semibold text-charcoal">Menu</span>
-                <button onClick={() => setMobileOpen(false)} className="text-charcoal">
+                <span className="font-display text-[22px] font-semibold text-charcoal">
+                  Menu
+                </span>
+                <button
+                  onClick={() => setMobileOpen(false)}
+                  className="text-charcoal"
+                >
                   <X size={22} strokeWidth={1.5} />
                 </button>
               </div>
               <nav className="p-5">
-                {navLinks.map(link => (
+                {navLinks.map((link) => (
                   <Link
                     key={link.path}
                     to={link.path}
@@ -206,15 +230,27 @@ export default function Navbar() {
                     className="flex items-center justify-between py-3.5 border-b border-[#e5e5e5] text-[15px] font-body font-medium text-charcoal"
                   >
                     {link.name}
-                    <ChevronRight size={16} strokeWidth={1.5} className="text-[#ccc]" />
+                    <ChevronRight
+                      size={16}
+                      strokeWidth={1.5}
+                      className="text-[#ccc]"
+                    />
                   </Link>
                 ))}
               </nav>
               <div className="p-5 pt-2 flex items-center gap-4">
-                <Link to="/wishlist" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 text-[14px] text-[#777] font-body">
+                <Link
+                  to="/wishlist"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 text-[14px] text-[#777] font-body"
+                >
                   <Heart size={18} strokeWidth={1.5} /> Wishlist
                 </Link>
-                <Link to="/account" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 text-[14px] text-[#777] font-body">
+                <Link
+                  to="/account"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2 text-[14px] text-[#777] font-body"
+                >
                   <User size={18} strokeWidth={1.5} /> Account
                 </Link>
               </div>

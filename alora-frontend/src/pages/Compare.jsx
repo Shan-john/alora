@@ -41,7 +41,7 @@ export default function Compare() {
       case 'Category': return product.category ? product.category.charAt(0).toUpperCase() + product.category.slice(1) : '—';
       case 'Material': return product.material || 'Premium Alloy';
       case 'Weight': return product.weight ? `${product.weight}g` : '—';
-      case 'Rating': return product.avgRating ? `${product.avgRating} / 5` : 'No reviews yet';
+      case 'Rating': return product.reviewCount > 0 ? `${product.rating} / 5 (${product.reviewCount})` : 'No reviews yet';
       default: return '—';
     }
   };

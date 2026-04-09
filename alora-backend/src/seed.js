@@ -112,6 +112,7 @@ async function seed() {
         { imageUrl: UNSPLASH_JEWELLERY[4], order: 3, isVisible: true },
         { imageUrl: UNSPLASH_JEWELLERY[6], order: 4, isVisible: true },
       ],
+      bestSellersImage: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=700&q=85',
       trustItems: [
         { icon: 'Truck', label: 'Free Shipping' },
         { icon: 'RefreshCw', label: 'Easy Returns' },

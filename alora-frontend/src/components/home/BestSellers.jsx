@@ -4,8 +4,9 @@ import { motion } from 'framer-motion';
 import { api } from '../../utils/api';
 import ProductCard from '../shop/ProductCard';
 
-export default function BestSellers() {
+export default function BestSellers({ image }) {
   const [products, setProducts] = useState([]);
+  const rightImage = image || 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=700&q=85';
 
   useEffect(() => {
     api.getProducts({ isBestSeller: true, limit: 4 })
@@ -65,7 +66,7 @@ export default function BestSellers() {
               style={{ top: '120px' }}
             >
               <img
-                src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=700&q=85"
+                src={rightImage}
                 alt="Lifestyle"
                 className="w-full object-cover"
                 style={{ height: '640px' }}

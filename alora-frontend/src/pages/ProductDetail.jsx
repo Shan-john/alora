@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useOutletContext } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import {
@@ -31,6 +31,7 @@ import toast from "react-hot-toast";
 
 export default function ProductDetail() {
   const { id } = useParams();
+  const { settings = {} } = useOutletContext() || {};
   const { addItem } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -45,6 +46,7 @@ export default function ProductDetail() {
     reviewText: "",
   });
   const [reviewIdentity, setReviewIdentity] = useState("anonymous");
+  const [isGiftOrder, setIsGiftOrder] = useState(false);
   const [submittingReview, setSubmittingReview] = useState(false);
   const [zoomStyle, setZoomStyle] = useState({
     transformOrigin: "center center",
@@ -55,6 +57,7 @@ export default function ProductDetail() {
   
   const { toggleWishlist, isInWishlist } = useWishlist();
   const isWishlisted = product ? isInWishlist(product.id) : false;
+  const whatsappNumber = String(settings?.whatsappNumber || "919497711275").replace(/\D/g, "");
 
   const handleWishlistAdd = () => {
     if (!product) return;
@@ -83,23 +86,29 @@ export default function ProductDetail() {
   };
 
   useEffect(() => {
+    let isCancelled = false;
+
     const fetchProduct = async () => {
-      setLoading(true);
+      if (!isCancelled) setLoading(true);
       try {
-        const data = await api.getProduct(id);
-        setProduct(data);
-        // Load reviews
-        api
-          .getReviews(id)
-          .then((r) => setReviews(r.reviews || []))
-          .catch(() => {});
+        const [productData, reviewData] = await Promise.all([
+          api.getProduct(id),
+          api.getReviews(id).catch(() => ({ reviews: [] })),
+        ]);
+        if (isCancelled) return;
+        setProduct(productData);
+        setReviews(reviewData.reviews || []);
       } catch {
-        setProduct(null);
+        if (!isCancelled) setProduct(null);
       } finally {
-        setLoading(false);
+        if (!isCancelled) setLoading(false);
       }
     };
     fetchProduct();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [id]);
 
   useEffect(() => {
@@ -130,6 +139,7 @@ export default function ProductDetail() {
   const discount = hasDiscount
     ? discountPercent(product.price, product.salePrice)
     : 0;
+  const actualReviewCount = reviews.length;
   const normalizedImages = (product.images || []).map((img) => normalizeImageUrl(img));
   const selectedImageUrl =
     normalizedImages?.[selectedImage] || normalizedImages?.[0] || "";
@@ -172,6 +182,25 @@ export default function ProductDetail() {
     } finally {
       setSubmittingReview(false);
     }
+  };
+
+  const buildWhatsAppLink = (text) =>
+    `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
+
+  const getGiftOrderMessage = () => {
+    const messageLines = [
+      "Hello, I want to place a *GIFT ORDER*.",
+      "",
+      "*Product Details:*",
+      `- Product: ${product.name}`,
+      `- Product ID: ${product.id}`,
+      `- Quantity: ${quantity}`,
+      `- Price each: ${formatPrice(currentPrice)}`,
+      `- Total: ${formatPrice(currentPrice * quantity)}`,
+      `- Product page: ${window.location.href}`,
+      `- Product image: ${selectedImageUrl || "N/A"}`,
+    ];
+    return messageLines.join("\n");
   };
 
   return (
@@ -256,7 +285,7 @@ export default function ProductDetail() {
                     showCount={false}
                   />
                   <span className="font-body text-[12px] text-[#888]">
-                    ({product.reviewCount} customer review)
+                    ({actualReviewCount} customer {actualReviewCount === 1 ? "review" : "reviews"})
                   </span>
                 </div>
               )}
@@ -336,6 +365,23 @@ export default function ProductDetail() {
                 </div>
               )}
 
+              {/* Order Type Radio */}
+              <div className="mb-4 space-y-2 border border-[#e5e5e5] p-4 rounded bg-white">
+                <label className="flex items-center gap-2 cursor-pointer font-body text-[14px] text-[#444]">
+                  <input type="radio" checked={!isGiftOrder} onChange={() => setIsGiftOrder(false)} className="accent-charcoal" />
+                  Normal order
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer font-body text-[14px] text-[#444]">
+                  <input type="radio" checked={isGiftOrder} onChange={() => setIsGiftOrder(true)} className="accent-charcoal" />
+                  Gift order
+                </label>
+                {isGiftOrder && (
+                  <p className="text-[12px] text-[#777] font-body mt-2 border-t border-[#e5e5e5] pt-2">
+                    Tap below to open WhatsApp with a ready gift-order template.
+                  </p>
+                )}
+              </div>
+
               {/* Quantity + Buy Row */}
               <div className="flex gap-2 mb-6 w-full h-[52px]">
                 <div className="flex items-center border border-[#ccc] bg-transparent w-[35%] shrink-0 h-full">
@@ -360,12 +406,16 @@ export default function ProductDetail() {
                 </div>
 
                 <a
-                  href={`https://wa.me/919497711275?text=Hi! I want to enquire about ${product.name} (${formatPrice(currentPrice)}).`}
+                  href={`https://wa.me/${whatsappNumber}?text=${
+                    isGiftOrder
+                      ? encodeURIComponent(getGiftOrderMessage())
+                      : encodeURIComponent(`Hi! I want to enquire about ${product.name} (${formatPrice(currentPrice)}).`)
+                  }`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-[65%] h-full bg-[#111] !text-white font-body text-[12px] font-bold tracking-[0.05em] uppercase flex items-center justify-center hover:bg-black transition-colors"
+                  className="w-[65%] h-full bg-[#111] !text-white font-body text-[11px] sm:text-[12px] font-bold tracking-[0.05em] uppercase flex items-center justify-center hover:bg-black transition-colors text-center leading-tight whitespace-break-spaces px-2"
                 >
-                  Buy Confirmed
+                  {isGiftOrder ? 'SEND GIFT ORDER ON WHATSAPP' : 'BUY CONFIRMED'}
                 </a>
               </div>
 
@@ -384,7 +434,7 @@ export default function ProductDetail() {
                 </button>
                 <div className="flex items-center justify-start">
                   <a
-                    href={`https://wa.me/919497711275?text=Hi! I have a question about ${product.name}.`}
+                    href={buildWhatsAppLink(`Hi! I have a question about ${product.name}.`)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 hover:text-black transition-colors"
@@ -399,12 +449,7 @@ export default function ProductDetail() {
                 </div>
                 <div className="flex items-center gap-2 pt-1">
                   <Truck size={16} strokeWidth={1.5} className="text-[#333]" />
-                  <span>
-                    Estimated Delivery:{" "}
-                    <strong className="text-black font-medium">
-                      12 - 16 April
-                    </strong>
-                  </span>
+                  <span>Fast dispatch after order confirmation</span>
                 </div>
               </div>
 

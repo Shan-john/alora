@@ -3,14 +3,31 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { api } from '../../utils/api';
+
+const normalizeSlides = (inputSlides = []) =>
+  (Array.isArray(inputSlides) ? [...inputSlides] : [])
+    .sort((a, b) => (a?.order || 0) - (b?.order || 0))
+    .map((slide) => ({
+      lifestyleImage: slide?.lifestyleImage || slide?.image || '',
+      productImage: slide?.productImage || slide?.image || slide?.lifestyleImage || '',
+      bgColor: slide?.bgColor || '#1A1A1A',
+      headline: slide?.headline || '',
+      subheadline: slide?.subheadline || '',
+      ctaText: slide?.ctaText || slide?.cta1Text || 'Shop Collection',
+      ctaLink: slide?.ctaLink || slide?.cta1Link || '/shop',
+    }))
+    .filter((slide) => slide.lifestyleImage);
+
 export default function Hero({ slides = [] }) {
   const [current, setCurrent] = useState(0);
-  const [heroSlides, setHeroSlides] = useState(slides);
+  const [heroSlides, setHeroSlides] = useState(normalizeSlides(slides));
   const [loading, setLoading] = useState(slides.length === 0);
 
   useEffect(() => {
-    if (slides.length > 0) {
-      setHeroSlides(slides);
+    const normalizedFromProps = normalizeSlides(slides);
+    if (normalizedFromProps.length > 0) {
+      setHeroSlides(normalizedFromProps);
+      setCurrent(0);
       setLoading(false);
       return;
     }
@@ -20,22 +37,8 @@ export default function Hero({ slides = [] }) {
       try {
         const data = await api.getSettings();
         if (data.settings && data.settings.heroSlides && data.settings.heroSlides.length > 0) {
-          const sorted = [...data.settings.heroSlides].sort((a, b) => (a.order || 0) - (b.order || 0));
-          // Map to match the expected format (the db schema seed only has image, headline, subheadline, etc.)
-          // Wait, the seed actually has: image, headline, subheadline, cta1Text, cta1Link.
-          // Since the UI requires lifestyleImage, productImage, bgColor... 
-          // If the DB only gives a single image, we will duplicate it or handle it gracefully.
-          // Here we adapt the backend data to fit the UI.
-          const adaptedSlides = sorted.map(s => ({
-            lifestyleImage: s.image,
-            productImage: s.image, // fallback
-            bgColor: '#B8973A', // fallback
-            headline: s.headline,
-            subheadline: s.subheadline,
-            ctaText: s.cta1Text || 'Shop Collection',
-            ctaLink: s.cta1Link || '/shop'
-          }));
-          setHeroSlides(adaptedSlides);
+          setHeroSlides(normalizeSlides(data.settings.heroSlides));
+          setCurrent(0);
         }
       } catch (err) {
         // silent

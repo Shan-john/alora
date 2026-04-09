@@ -5,12 +5,17 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 async function apiRequest(path, options = {}) {
   const url = `${API_URL}${path}`;
   const headers = { ...options.headers };
+  const {
+    timeoutMs = 15000,
+    signal: externalSignal,
+    ...requestOptions
+  } = options;
 
-  if (!(options.body instanceof FormData)) {
+  if (!(requestOptions.body instanceof FormData)) {
     headers['Content-Type'] = 'application/json';
   }
 
-  if (options.auth) {
+  if (requestOptions.auth) {
     let token = await getIdToken();
     if (!token && localStorage.getItem('alora_admin_logged_in') === 'true') {
       token = 'local-admin';
@@ -18,7 +23,26 @@ async function apiRequest(path, options = {}) {
     if (token) headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(url, { ...options, headers });
+  const timeoutController = externalSignal ? null : new AbortController();
+  const timeoutId = timeoutController
+    ? setTimeout(() => timeoutController.abort(), timeoutMs)
+    : null;
+
+  let response;
+  try {
+    response = await fetch(url, {
+      ...requestOptions,
+      headers,
+      signal: externalSignal || timeoutController.signal,
+    });
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('Request timed out. Please try again.');
+    }
+    throw error;
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));

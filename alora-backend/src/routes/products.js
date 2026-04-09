@@ -18,7 +18,24 @@ router.get('/', async (req, res) => {
   try {
     const { category, minPrice, maxPrice, sort, limit = 20, search, isBestSeller, isTrendingIG, offset = 0 } = req.query;
 
-    let query = 'SELECT p.*, (SELECT json_agg(image_url ORDER BY display_order) FROM product_images WHERE product_id = p.id) as images FROM products p WHERE p.status = $1';
+    let query = `
+      SELECT
+        p.*,
+        COALESCE(rs.avg_rating, 0) AS calculated_rating,
+        COALESCE(rs.review_count, 0) AS calculated_review_count,
+        (SELECT json_agg(image_url ORDER BY display_order) FROM product_images WHERE product_id = p.id) as images
+      FROM products p
+      LEFT JOIN (
+        SELECT
+          product_id,
+          ROUND(AVG(rating)::numeric, 2) AS avg_rating,
+          COUNT(*)::int AS review_count
+        FROM reviews
+        WHERE is_approved = true
+        GROUP BY product_id
+      ) rs ON rs.product_id = p.id
+      WHERE p.status = $1
+    `;
     const params = ['active'];
     let paramIndex = 2;
 
@@ -72,8 +89,8 @@ router.get('/', async (req, res) => {
         isBestSeller: p.is_best_seller,
         isTrendingIG: p.is_trending_ig,
         status: p.status,
-        rating: Number(p.rating),
-        reviewCount: p.review_count,
+        rating: Number(p.calculated_rating),
+        reviewCount: Number(p.calculated_review_count),
         images: p.images || []
     })), count: products.length });
   } catch (err) {
@@ -114,7 +131,25 @@ router.post('/:id/click', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { rows } = await pool.query(
-      'SELECT p.*, (SELECT json_agg(image_url ORDER BY display_order) FROM product_images WHERE product_id = p.id) as images FROM products p WHERE p.id = $1 OR p.slug = $1 AND p.status = $2',
+      `
+      SELECT
+        p.*,
+        COALESCE(rs.avg_rating, 0) AS calculated_rating,
+        COALESCE(rs.review_count, 0) AS calculated_review_count,
+        (SELECT json_agg(image_url ORDER BY display_order) FROM product_images WHERE product_id = p.id) as images
+      FROM products p
+      LEFT JOIN (
+        SELECT
+          product_id,
+          ROUND(AVG(rating)::numeric, 2) AS avg_rating,
+          COUNT(*)::int AS review_count
+        FROM reviews
+        WHERE is_approved = true
+        GROUP BY product_id
+      ) rs ON rs.product_id = p.id
+      WHERE (p.id = $1 OR p.slug = $1) AND p.status = $2
+      LIMIT 1
+      `,
       [req.params.id, 'active']
     );
     if (rows.length === 0) {
@@ -133,8 +168,8 @@ router.get('/:id', async (req, res) => {
         isBestSeller: p.is_best_seller,
         isTrendingIG: p.is_trending_ig,
         status: p.status,
-        rating: Number(p.rating),
-        reviewCount: p.review_count,
+        rating: Number(p.calculated_rating),
+        reviewCount: Number(p.calculated_review_count),
         images: p.images || []
     });
   } catch (err) {

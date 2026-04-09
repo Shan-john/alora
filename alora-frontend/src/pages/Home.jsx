@@ -7,7 +7,6 @@ import CollectionBanners from "../components/home/CollectionBanners";
 import BestSellers from "../components/home/BestSellers";
 import GiftingBanner from "../components/home/GiftingBanner";
 import IGSection from "../components/home/IGSection";
-import TrustStrip from "../components/home/TrustStrip";
 import Testimonials from "../components/home/Testimonials";
  
 
@@ -43,7 +42,7 @@ export default function Home() {
       <CollectionBanners />
 
       {/* 5. Asymmetric products + lifestyle */}
-      <BestSellers />
+      <BestSellers settings={settings} image={settings?.bestSellersImage} />
 
       {/* 6. "Collection" bg text + image + CTA */}
       <GiftingBanner banner={settings?.giftingBanner} />

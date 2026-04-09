@@ -65,10 +65,11 @@ export default function Categories() {
           { name: 'Bracelets', slug: 'bracelets' },
           { name: 'Rings', slug: 'rings' },
           { name: 'Party Wear', slug: 'party-wear' },
-          { name: 'Gift Sets', slug: 'gift-sets' },
         ]);
       });
   }, []);
+
+  const visibleCategories = categories.filter((cat) => cat.slug !== 'gift-sets');
 
   return (
     <section
@@ -78,7 +79,7 @@ export default function Categories() {
     >
       <div className="container-luxury">
         <div className="flex items-center justify-center gap-[40px] sm:gap-[60px] md:gap-[80px] overflow-x-auto no-scrollbar">
-          {categories.map((cat, index) => (
+          {visibleCategories.map((cat, index) => (
             <motion.div
               key={cat.slug}
               initial={{ opacity: 0, y: 20 }}

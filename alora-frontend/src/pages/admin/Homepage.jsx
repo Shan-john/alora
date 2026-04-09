@@ -30,7 +30,7 @@ export default function Homepage() {
 
   if (loading) return <Spinner size="lg" className="py-20" />;
 
-  const tabs = ['hero', 'announcement', 'instagram', 'trust', 'gifting', 'flash'];
+  const tabs = ['hero', 'announcement', 'bestsellers', 'instagram', 'gifting', 'flash'];
 
   return (
     <div>
@@ -69,18 +69,11 @@ export default function Homepage() {
             <Button onClick={() => saveField('announcements', settings.announcements)} variant="solid" size="sm" loading={saving}><Save size={14} className="mr-1"/>Save</Button>
           </div>
         )}
-        {tab === 'trust' && (
+        {tab === 'bestsellers' && (
           <div className="space-y-4">
-            <h2 className="font-body text-sm font-semibold">Trust Strip</h2>
-            {(settings.trustItems||[]).map((item,i) => (
-              <div key={i} className="flex gap-2">
-                <select value={item.icon} onChange={e => { const it=[...settings.trustItems]; it[i]={...it[i],icon:e.target.value}; setSettings(p=>({...p,trustItems:it})); }} className="py-2 px-3 border border-stone-200 rounded text-sm w-40">
-                  {['Truck','RefreshCw','ShieldCheck','CheckCircle','Heart','Star','Package'].map(ic => <option key={ic} value={ic}>{ic}</option>)}
-                </select>
-                <input value={item.label} onChange={e => { const it=[...settings.trustItems]; it[i]={...it[i],label:e.target.value}; setSettings(p=>({...p,trustItems:it})); }} className="flex-1 py-2 px-3 border border-stone-200 rounded text-sm"/>
-              </div>
-            ))}
-            <Button onClick={() => saveField('trustItems', settings.trustItems)} variant="solid" size="sm" loading={saving}><Save size={14} className="mr-1"/>Save</Button>
+            <h2 className="font-body text-sm font-semibold">BestSellers Side Image</h2>
+            <input value={settings.bestSellersImage||''} onChange={e => setSettings(p=>({...p,bestSellersImage:e.target.value}))} placeholder="Image URL" className="w-full py-2 px-3 border border-stone-200 rounded text-sm"/>
+            <Button onClick={() => saveField('bestSellersImage', settings.bestSellersImage)} variant="solid" size="sm" loading={saving}><Save size={14} className="mr-1"/>Save</Button>
           </div>
         )}
         {tab === 'gifting' && (

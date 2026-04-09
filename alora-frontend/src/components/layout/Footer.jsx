@@ -5,9 +5,12 @@ import { InstagramIcon as Instagram } from '../common/Icons';
 export default function Footer({ settings = {} }) {
   const year = new Date().getFullYear();
   const igHandle = settings.igHandle || 'alorabytrio';
-  const whatsappNumber = settings.whatsappNumber || '919497711275';
+  const whatsappNumber = String(settings.whatsappNumber || '919497711275').replace(/\D/g, '');
   const supportEmail = settings.supportEmail || 'hello@alorabytrio.com';
-  const supportPhoneLabel = settings.supportPhoneLabel || '+91 94977 11275';
+  const supportPhoneLabel =
+    whatsappNumber.length === 12 && whatsappNumber.startsWith('91')
+      ? `+${whatsappNumber.slice(0, 2)} ${whatsappNumber.slice(2, 7)} ${whatsappNumber.slice(7)}`
+      : `+${whatsappNumber}`;
 
   return (
     <footer className="bg-white text-charcoal" style={{ borderTop: '1px solid #e5e5e5' }}>
@@ -44,7 +47,7 @@ export default function Footer({ settings = {} }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {[
                 { name: 'Wishlist', path: '/wishlist' },
-                { name: 'Shopping Cart', path: '/cart' },
+                
                 { name: 'FAQs', path: '/faq' },
                 { name: 'Compare', path: '/compare' },
               ].map(link => (
@@ -71,7 +74,7 @@ export default function Footer({ settings = {} }) {
                 { name: 'Earrings', path: '/shop?category=earrings' },
                 { name: 'Bracelets', path: '/shop?category=bracelets' },
                 { name: 'Rings', path: '/shop?category=rings' },
-                { name: 'Gift Sets', path: '/shop?category=gift-sets' },
+                
               ].map(link => (
                 <Link
                   key={link.path}
@@ -158,7 +161,27 @@ export default function Footer({ settings = {} }) {
               © {year} Alora by Trio. All rights reserved.
             </p>
           </div>
-          <div className="flex items-center" style={{ gap: '24px' }}>
+          <div
+            className="flex items-center justify-center sm:justify-end flex-wrap"
+            style={{ gap: '12px', fontSize: '13px', color: '#777' }}
+          >
+            <span className="font-body">Developer: Shan john</span>
+            <a
+              href="https://github.com/Shan-john"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-body hover:text-charcoal transition-colors"
+            >
+              GitHub
+            </a>
+            <a
+              href="https://www.linkedin.com/in/shan-john/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-body hover:text-charcoal transition-colors"
+            >
+              LinkedIn
+            </a>
           </div>
         </div>
       </div>

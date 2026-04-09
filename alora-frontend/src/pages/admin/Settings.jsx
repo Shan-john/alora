@@ -15,7 +15,6 @@ const defaultHeroSlide = {
   ctaLink: '/shop',
 };
 
-const defaultTrustItem = { icon: 'ShieldCheck', label: '', subtitle: '' };
 const defaultAboutValue = { icon: 'Heart', title: '', desc: '' };
 
 const toTextArray = (items = []) =>
@@ -27,6 +26,42 @@ const toTextArray = (items = []) =>
         })
         .filter(Boolean)
     : [];
+
+function Field({ label, value, onChange, type = 'text', hint, rows = 3 }) {
+  return (
+    <div>
+      <label className="text-xs tracking-wider uppercase font-body text-stone-500 mb-1 block">{label}</label>
+      {type === 'textarea' ? (
+        <textarea
+          value={value || ''}
+          onChange={(event) => onChange(event.target.value)}
+          rows={rows}
+          className="w-full py-2 px-3 border border-stone-200 rounded-lg text-sm resize-none"
+        />
+      ) : (
+        <input
+          type={type}
+          value={value || ''}
+          onChange={(event) => onChange(event.target.value)}
+          className="w-full py-2 px-3 border border-stone-200 rounded-lg text-sm"
+        />
+      )}
+      {hint && <p className="text-xs text-stone-400 mt-1">{hint}</p>}
+    </div>
+  );
+}
+
+function Section({ title, subtitle, children }) {
+  return (
+    <div className="bg-white rounded-xl border border-stone-100 p-6 space-y-4">
+      <div className="border-b pb-2">
+        <h2 className="font-body text-sm font-semibold text-charcoal">{title}</h2>
+        {subtitle && <p className="text-xs text-stone-500 mt-1">{subtitle}</p>}
+      </div>
+      {children}
+    </div>
+  );
+}
 
 export default function AdminSettings() {
   const [settings, setSettings] = useState({});
@@ -150,38 +185,6 @@ export default function AdminSettings() {
 
   if (loading) return <Spinner size="lg" className="py-20" />;
 
-  const Field = ({ label, value, onChange, type = 'text', hint, rows = 3 }) => (
-    <div>
-      <label className="text-xs tracking-wider uppercase font-body text-stone-500 mb-1 block">{label}</label>
-      {type === 'textarea' ? (
-        <textarea
-          value={value || ''}
-          onChange={(event) => onChange(event.target.value)}
-          rows={rows}
-          className="w-full py-2 px-3 border border-stone-200 rounded-lg text-sm resize-none"
-        />
-      ) : (
-        <input
-          type={type}
-          value={value || ''}
-          onChange={(event) => onChange(event.target.value)}
-          className="w-full py-2 px-3 border border-stone-200 rounded-lg text-sm"
-        />
-      )}
-      {hint && <p className="text-xs text-stone-400 mt-1">{hint}</p>}
-    </div>
-  );
-
-  const Section = ({ title, subtitle, children }) => (
-    <div className="bg-white rounded-xl border border-stone-100 p-6 space-y-4">
-      <div className="border-b pb-2">
-        <h2 className="font-body text-sm font-semibold text-charcoal">{title}</h2>
-        {subtitle && <p className="text-xs text-stone-500 mt-1">{subtitle}</p>}
-      </div>
-      {children}
-    </div>
-  );
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -201,7 +204,6 @@ export default function AdminSettings() {
           <Field label="Instagram Handle" value={settings.igHandle} onChange={(v) => setField('igHandle', v)} hint="Type only username (no @)" />
           <Field label="WhatsApp Number" value={settings.whatsappNumber} onChange={(v) => setField('whatsappNumber', v)} hint="Country code included, no +" />
           <Field label="Support Email" value={settings.supportEmail} onChange={(v) => setField('supportEmail', v)} />
-          <Field label="Support Phone Text" value={settings.supportPhoneLabel} onChange={(v) => setField('supportPhoneLabel', v)} />
         </div>
       </Section>
 
@@ -261,24 +263,12 @@ export default function AdminSettings() {
         <Field label="Subheading" value={settings.giftingBanner?.subheading} onChange={(v) => setField('giftingBanner', { ...(settings.giftingBanner || {}), subheading: v })} type="textarea" />
       </Section>
 
-      <Section title="Trust Icons" subtitle="Shipping/returns/quality cards">
-        {(settings.trustItems || []).map((item, index) => (
-          <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-2 items-end border border-stone-200 rounded-lg p-3">
-            <Field label="Icon Name" value={item.icon || ''} onChange={(v) => updateArrayItem('trustItems', index, { ...item, icon: v })} hint="Truck, ShieldCheck, Heart, RefreshCw" />
-            <Field label="Title" value={item.label || ''} onChange={(v) => updateArrayItem('trustItems', index, { ...item, label: v })} />
-            <div className="flex gap-2 items-end">
-              <div className="flex-1">
-                <Field label="Subtitle" value={item.subtitle || ''} onChange={(v) => updateArrayItem('trustItems', index, { ...item, subtitle: v })} />
-              </div>
-              <button type="button" onClick={() => removeArrayItem('trustItems', index)} className="text-red-500 p-2 mb-1">
-                <Trash2 size={16} />
-              </button>
-            </div>
-          </div>
-        ))}
-        <Button type="button" variant="outline" size="sm" onClick={() => addArrayItem('trustItems', defaultTrustItem)}>
-          <Plus size={14} className="mr-1" /> Add Trust Item
-        </Button>
+      <Section title="Best Sellers Section" subtitle="Large right-side image in homepage best sellers block">
+        <Field
+          label="Right Image URL"
+          value={settings.bestSellersImage}
+          onChange={(v) => setField('bestSellersImage', v)}
+        />
       </Section>
 
       <Section title="Instagram Grid" subtitle="6 image boxes shown on homepage">
