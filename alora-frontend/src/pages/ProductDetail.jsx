@@ -325,7 +325,9 @@ export default function ProductDetail() {
               <p className="font-body text-[#666] text-[15px] leading-[1.8] mb-6 pr-2">
                  
                 {/* Using standard filler to match reference if description is empty */}
-                {product.description}
+               {product.longDescription ||
+                      product.description ||
+                      "Detailed product information and specifications will be displayed here."}
               </p>
 
               <p className="font-body text-[13px] text-[#666] mb-0 flex items-center gap-1.5">
@@ -473,18 +475,7 @@ export default function ProductDetail() {
               </div>
 
               {/* Description Area */}
-              <div className="mb-8">
-                <div className="border-t border-[#e5e5e5] pt-6">
-                  <h3 className="font-display text-[15px] font-medium text-[#222] mb-3">
-                    Product Information
-                  </h3>
-                  <div className="font-body text-[13px] text-[#666] leading-[1.8] whitespace-pre-line">
-                    {product.longDescription ||
-                      product.description ||
-                      "Detailed product information and specifications will be displayed here."}
-                  </div>
-                </div>
-              </div>
+               
             </div>
           </div>
         </div>
