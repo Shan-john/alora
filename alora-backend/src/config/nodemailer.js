@@ -2,18 +2,20 @@ const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: process.env.SMTP_HOST || 'smtp.zoho.in', // Default to Zoho IN (change to smtp.zoho.com if global)
+  port: process.env.SMTP_PORT || 465,
+  secure: true,
   auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
+    user: process.env.SMTP_USER || process.env.GMAIL_USER,
+    pass: process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD,
   },
 });
 
 // Verify connection on startup
 transporter.verify().then(() => {
-  console.log('✅ Nodemailer: Gmail SMTP ready');
+  console.log('✅ Nodemailer: SMTP ready');
 }).catch((err) => {
-  console.warn('⚠️ Nodemailer: Gmail SMTP not configured —', err.message);
+  console.warn('⚠️ Nodemailer: SMTP not configured —', err.message);
 });
 
 module.exports = transporter;

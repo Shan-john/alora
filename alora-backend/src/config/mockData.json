@@ -1,0 +1,100 @@
+{
+  "categories": [
+    { "id": "1", "name": "Necklaces", "slug": "necklaces", "order": 1, "isVisible": true },
+    { "id": "2", "name": "Earrings", "slug": "earrings", "order": 2, "isVisible": true },
+    { "id": "3", "name": "Bracelets", "slug": "bracelets", "order": 3, "isVisible": true },
+    { "id": "4", "name": "Rings", "slug": "rings", "order": 4, "isVisible": true },
+    { "id": "5", "name": "Party Wear", "slug": "party-wear", "order": 5, "isVisible": true },
+    { "id": "6", "name": "Gift Sets", "slug": "gift-sets", "order": 6, "isVisible": true }
+  ],
+  "products": [
+    {
+      "id": "p1",
+      "name": "Celestial Gold Pendant Necklace",
+      "slug": "celestial-gold-pendant-necklace",
+      "description": "A stunning gold-plated pendant necklace featuring a celestial star design.",
+      "price": 1499,
+      "salePrice": 1199,
+      "images": ["https://images.unsplash.com/photo-1617038220319-276d3cfab638?w=800", "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800"],
+      "category": "necklaces",
+      "isBestSeller": true,
+      "isTrendingIG": true,
+      "status": "active",
+      "rating": 4.8,
+      "reviewCount": 24
+    },
+    {
+      "id": "p2",
+      "name": "Pearl Drop Earrings",
+      "slug": "pearl-drop-earrings",
+      "price": 899,
+      "images": ["https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800"],
+      "category": "earrings",
+      "isBestSeller": true,
+      "status": "active",
+      "rating": 4.9,
+      "reviewCount": 31
+    },
+    {
+      "id": "p3",
+      "name": "Twisted Gold Cuff Bracelet",
+      "slug": "twisted-gold-cuff-bracelet",
+      "price": 1299,
+      "salePrice": 999,
+      "images": ["https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800"],
+      "category": "bracelets",
+      "isBestSeller": true,
+      "isTrendingIG": true,
+      "status": "active",
+      "rating": 4.7,
+      "reviewCount": 19
+    },
+    {
+      "id": "p4",
+      "name": "Minimalist Signet Ring",
+      "slug": "minimalist-signet-ring",
+      "price": 699,
+      "images": ["https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=800"],
+      "category": "rings",
+      "isBestSeller": true,
+      "status": "active",
+      "rating": 4.6,
+      "reviewCount": 12
+    }
+  ],
+  "settings": [
+    {
+      "id": "store",
+      "storeName": "Alora by Trio",
+      "tagline": "Luxury Jewellery & Lifestyle",
+      "igHandle": "alorabytrio",
+      "whatsappNumber": "919497711275",
+      "announcements": [
+        "Free Shipping on Orders Above ₹999",
+        "New Arrivals Every Week",
+        "100% Authentic Products"
+      ],
+      "heroSlides": [
+        {
+          "image": "https://images.unsplash.com/photo-1617038220319-276d3cfab638?w=1600",
+          "headline": "Elegance Redefined",
+          "subheadline": "Discover our handcrafted collection",
+          "cta1Text": "Shop Now",
+          "cta1Link": "/shop"
+        }
+      ]
+    }
+  ],
+  "reviews": [
+    {
+      "id": "r1",
+      "customerName": "Priya S.",
+      "igHandle": "@priya.s",
+      "rating": 5,
+      "text": "Absolutely love my necklace from Alora! The quality is incredible for the price."
+    }
+  ],
+  "admins": [
+    { "id": "mock-admin", "email": "admin@alora.com", "role": "superadmin" }
+  ]
+}

@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowRight, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { api } from '../../utils/api';
 
 export default function EmailCapture() {
@@ -11,12 +10,11 @@ export default function EmailCapture() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email) return;
-
     setStatus('loading');
     try {
       const data = await api.subscribe(email);
       setStatus('success');
-      setMessage(data.message || "You're in! 🎉 Check your inbox.");
+      setMessage(data.message || "You're in! 🎉");
       setEmail('');
     } catch {
       setStatus('error');
@@ -25,58 +23,73 @@ export default function EmailCapture() {
   };
 
   return (
-    <section className="py-20 sm:py-24 bg-charcoal" id="email-capture">
+    <section style={{ padding: '72px 0', backgroundColor: '#222222' }} id="email-capture">
       <div className="container-luxury">
-        <div className="max-w-xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <p className="text-gold text-[10px] tracking-[5px] uppercase font-body mb-5">Stay Connected</p>
-            <h2 className="font-display text-2xl sm:text-[34px] font-semibold text-white leading-tight mb-3">
+        <div className="flex flex-col md:flex-row items-center justify-between" style={{ gap: '30px' }}>
+          {/* Left — text */}
+          <div className="text-center md:text-left flex-1">
+            <h3
+              className="font-display font-medium text-white"
+              style={{ fontSize: '33px', lineHeight: 1.3, marginBottom: '8px' }}
+            >
               Join the Alora Family
-            </h2>
-            <p className="text-stone-500 text-[13px] font-body mb-10 tracking-wide leading-relaxed">
-              Subscribe for exclusive offers, new arrivals, and 10% off your first order
+            </h3>
+            <p className="font-body" style={{ fontSize: '16px', color: '#777' }}>
+              Sign up for our mailing list to receive latest updates and offers.
             </p>
+          </div>
 
+          {/* Right — form */}
+          <div className="w-full md:w-auto">
             {status === 'success' ? (
-              <motion.div
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="flex items-center justify-center gap-3 text-gold"
-              >
+              <div className="flex items-center gap-3" style={{ color: '#B8973A' }}>
                 <Check size={18} strokeWidth={1.5} />
-                <span className="font-body text-sm tracking-wide">{message}</span>
-              </motion.div>
+                <span className="font-body" style={{ fontSize: '15px' }}>{message}</span>
+              </div>
             ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-0 max-w-md mx-auto">
+              <form onSubmit={handleSubmit} className="flex w-full md:w-auto">
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="flex-1 py-3.5 px-5 bg-transparent border border-white/15 text-white placeholder:text-stone-600 font-body text-sm focus:outline-none focus:border-gold/50 transition-colors duration-300 tracking-wide"
+                  placeholder="Email Address"
                   required
                   id="email-capture-input"
+                  className="font-body focus:outline-none"
+                  style={{
+                    flex: '1',
+                    minWidth: '280px',
+                    padding: '14px 20px',
+                    backgroundColor: 'transparent',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    color: '#fff',
+                    fontSize: '14px',
+                    letterSpacing: '0.02em',
+                  }}
                 />
                 <button
                   type="submit"
                   disabled={status === 'loading'}
-                  className="py-3.5 px-7 bg-gold text-charcoal text-[10px] tracking-[0.2em] uppercase font-body font-medium hover:bg-gold-light transition-colors duration-300 flex items-center justify-center gap-2 disabled:opacity-40 cursor-pointer"
+                  className="font-body font-medium cursor-pointer transition-colors duration-300 hover:bg-[#B8973A] hover:text-white disabled:opacity-40"
+                  style={{
+                    padding: '14px 28px',
+                    backgroundColor: '#fff',
+                    color: '#222',
+                    fontSize: '13px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    border: 'none',
+                    whiteSpace: 'nowrap',
+                  }}
                 >
                   {status === 'loading' ? 'Joining...' : 'Subscribe'}
-                  <ArrowRight size={13} strokeWidth={1.5} />
                 </button>
               </form>
             )}
-
             {status === 'error' && (
-              <p className="mt-4 text-red-400/80 text-xs tracking-wide">{message}</p>
+              <p style={{ marginTop: '12px', color: '#ff6b6b', fontSize: '13px' }}>{message}</p>
             )}
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

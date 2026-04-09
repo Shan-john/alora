@@ -1,15 +1,14 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { api } from '../../utils/api';
 import ProductCard from '../shop/ProductCard';
-import { ArrowRight } from 'lucide-react';
 
 export default function BestSellers() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    api.getProducts({ isBestSeller: true, limit: 8 })
+    api.getProducts({ isBestSeller: true, limit: 4 })
       .then(data => setProducts(data.products || []))
       .catch(() => {});
   }, []);
@@ -17,37 +16,62 @@ export default function BestSellers() {
   if (products.length === 0) return null;
 
   return (
-    <section className="py-20 sm:py-28 bg-warm" id="bestsellers">
+    <section className="bg-white" style={{ padding: '80px 0' }} id="bestsellers">
       <div className="container-luxury">
-        {/* Section header */}
-        <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between mb-14 sm:mb-16 gap-4">
-          <div className="text-center sm:text-left">
-            <p className="text-gold text-[10px] tracking-[5px] uppercase font-body mb-4">Most Loved</p>
-            <h2 className="font-display text-3xl sm:text-[40px] font-semibold text-charcoal leading-tight">
-              Our Best Sellers
-            </h2>
-          </div>
-          <Link
-            to="/shop?sort=best-seller"
-            className="inline-flex items-center gap-2 text-[11px] tracking-[0.2em] uppercase font-body text-gold hover:text-charcoal transition-colors duration-300"
-          >
-            View All <ArrowRight size={14} strokeWidth={1.5} />
-          </Link>
-        </div>
+        {/* Asymmetric layout: heading+products left, lifestyle image right */}
+        <div className="grid grid-cols-1 lg:grid-cols-12" style={{ gap: '30px' }}>
+          {/* Left — Heading + 2x2 product grid (7 cols) */}
+          <div className="lg:col-span-7">
+            <div style={{ marginBottom: '40px' }}>
+              <h2 className="font-display text-[33px] font-medium text-charcoal leading-[1.15]">
+                Soak up the Savings
+              </h2>
+              <p className="font-body text-[#777] text-[16px] leading-relaxed" style={{ marginTop: '12px', maxWidth: '380px' }}>
+                Our jewellery is manufactured in our state-of-the-art workshop.
+              </p>
+              <Link
+                to="/shop?sort=best-seller"
+                className="btn-outline inline-block"
+                style={{ marginTop: '20px' }}
+              >
+                Shop Now
+              </Link>
+            </div>
 
-        {/* Product grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-          {products.map((product, index) => (
+            {/* 2×2 product grid */}
+            <div className="grid grid-cols-2" style={{ gap: '30px' }}>
+              {products.slice(0, 4).map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-30px' }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right — Lifestyle image (5 cols) */}
+          <div className="lg:col-span-5 hidden lg:block">
             <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ delay: index * 0.06, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="sticky"
+              style={{ top: '120px' }}
             >
-              <ProductCard product={product} />
+              <img
+                src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=700&q=85"
+                alt="Lifestyle"
+                className="w-full object-cover"
+                style={{ height: '640px' }}
+              />
             </motion.div>
-          ))}
+          </div>
         </div>
       </div>
     </section>

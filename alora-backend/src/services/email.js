@@ -1,7 +1,7 @@
 const transporter = require('../config/nodemailer');
 require('dotenv').config();
 
-const FROM_EMAIL = `"Alora by Trio" <${process.env.GMAIL_USER}>`;
+const FROM_EMAIL = `"Alora by Trio" <${process.env.SMTP_USER || process.env.GMAIL_USER}>`;
 
 const statusLabels = {
   pending: 'Order Received',

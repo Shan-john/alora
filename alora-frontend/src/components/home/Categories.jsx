@@ -3,6 +3,55 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { api } from '../../utils/api';
 
+/* Alukas-style thin line SVG icons — 60px */
+const categoryIcons = {
+  necklaces: (
+    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" stroke="currentColor" strokeWidth="1">
+      <path d="M17 14C17 14 17 34 30 44C43 34 43 14 43 14" />
+      <circle cx="30" cy="44" r="5" />
+      <path d="M12 9h36" />
+    </svg>
+  ),
+  earrings: (
+    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" stroke="currentColor" strokeWidth="1">
+      <path d="M22 10v7a7 7 0 0 1-7 7v0a7 7 0 0 1 7 7v7" />
+      <path d="M38 10v7a7 7 0 0 0 7 7v0a7 7 0 0 0-7 7v7" />
+      <circle cx="22" cy="44" r="4" />
+      <circle cx="38" cy="44" r="4" />
+    </svg>
+  ),
+  bracelets: (
+    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" stroke="currentColor" strokeWidth="1">
+      <ellipse cx="30" cy="30" rx="20" ry="15" />
+      <ellipse cx="30" cy="30" rx="15" ry="10" />
+    </svg>
+  ),
+  rings: (
+    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" stroke="currentColor" strokeWidth="1">
+      <ellipse cx="30" cy="38" rx="13" ry="10" />
+      <path d="M24 14l6-5 6 5" />
+      <path d="M22 28l8-14 8 14" />
+    </svg>
+  ),
+  'party-wear': (
+    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" stroke="currentColor" strokeWidth="1">
+      <path d="M20 8l10 40 10-40" />
+      <path d="M14 20h32" />
+      <circle cx="30" cy="30" r="4" />
+    </svg>
+  ),
+  'gift-sets': (
+    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" stroke="currentColor" strokeWidth="1">
+      <rect x="10" y="25" width="40" height="25" rx="1" />
+      <rect x="15" y="15" width="30" height="10" rx="1" />
+      <path d="M30 15v35" />
+      <path d="M10 30h40" />
+      <path d="M20 15c0-5 5-8 10-5" />
+      <path d="M40 15c0-5-5-8-10-5" />
+    </svg>
+  ),
+};
+
 export default function Categories() {
   const [categories, setCategories] = useState([]);
 
@@ -11,57 +60,42 @@ export default function Categories() {
       .then(data => setCategories(data.categories || []))
       .catch(() => {
         setCategories([
-          { name: 'Necklaces', slug: 'necklaces', image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=600&q=80' },
-          { name: 'Earrings', slug: 'earrings', image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&q=80' },
-          { name: 'Bracelets', slug: 'bracelets', image: 'https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=600&q=80' },
-          { name: 'Rings', slug: 'rings', image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&q=80' },
-          { name: 'Party Wear', slug: 'party-wear', image: 'https://images.unsplash.com/photo-1515562141589-67f0d569b4ce?w=600&q=80' },
-          { name: 'Gift Sets', slug: 'gift-sets', image: 'https://images.unsplash.com/photo-1617038220319-276d3cfab638?w=600&q=80' },
+          { name: 'Necklaces', slug: 'necklaces' },
+          { name: 'Earrings', slug: 'earrings' },
+          { name: 'Bracelets', slug: 'bracelets' },
+          { name: 'Rings', slug: 'rings' },
+          { name: 'Party Wear', slug: 'party-wear' },
+          { name: 'Gift Sets', slug: 'gift-sets' },
         ]);
       });
   }, []);
 
   return (
-    <section className="py-20 sm:py-28 bg-ivory" id="categories">
+    <section
+      className="bg-white"
+      style={{ padding: '40px 0', borderBottom: '1px solid #e5e5e5' }}
+      id="categories"
+    >
       <div className="container-luxury">
-        {/* Section header */}
-        <div className="text-center mb-14 sm:mb-16">
-          <p className="text-gold text-[10px] tracking-[5px] uppercase font-body mb-4">Explore</p>
-          <h2 className="font-display text-3xl sm:text-[40px] font-semibold text-charcoal leading-tight">
-            Shop by Category
-          </h2>
-          <div className="section-divider mt-5" />
-        </div>
-
-        {/* Grid — 3 columns with generous gap */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5">
+        <div className="flex items-center justify-center gap-[40px] sm:gap-[60px] md:gap-[80px] overflow-x-auto no-scrollbar">
           {categories.map((cat, index) => (
             <motion.div
               key={cat.slug}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
-              transition={{ delay: index * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.08, duration: 0.5 }}
             >
               <Link
                 to={`/shop?category=${cat.slug}`}
-                className="group relative block overflow-hidden aspect-4/5"
+                className="group flex flex-col items-center gap-3 text-center min-w-[70px]"
               >
-                <img
-                  src={cat.image}
-                  alt={cat.name}
-                  className="w-full h-full object-cover transition-transform duration-[800ms] ease-out group-hover:scale-105"
-                />
-                {/* Subtle gradient only at bottom */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-7">
-                  <h3 className="font-display text-lg sm:text-xl font-semibold text-white tracking-wide">
-                    {cat.name}
-                  </h3>
-                  <p className="text-white/50 text-[10px] tracking-[0.2em] uppercase mt-1 group-hover:text-gold transition-colors duration-300 font-body">
-                    Explore →
-                  </p>
+                <div className="text-charcoal group-hover:text-gold transition-colors duration-300">
+                  {categoryIcons[cat.slug] || categoryIcons.necklaces}
                 </div>
+                <span className="text-[13px] tracking-[0.15em] uppercase font-body font-medium text-charcoal group-hover:text-gold transition-colors duration-300 whitespace-nowrap">
+                  {cat.name}
+                </span>
               </Link>
             </motion.div>
           ))}

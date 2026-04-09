@@ -1,47 +1,66 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Button from '../common/Button';
 
 export default function GiftingBanner({ banner = {} }) {
-  const image = banner.image || 'https://images.unsplash.com/photo-1603561591411-07134e71a2a9?w=1600&q=85';
-  const heading = banner.heading || 'The Perfect Gift Awaits';
-  const subheading = banner.subheading || 'Find beautifully curated gifts for every budget';
+  const heading = banner.heading || 'Great design\nAccessible for all';
+  const subheading = banner.subheading || 'Find beautifully curated gifts for every occasion and budget.';
+  const image = banner.image || 'https://images.unsplash.com/photo-1603561591411-07134e71a2a9?w=900&q=85';
 
   return (
-    <section className="relative py-28 sm:py-36 overflow-hidden" id="gifting">
-      <div className="absolute inset-0">
-        <img src={image} alt="Gifting" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-charcoal/55" />
+    <section className="relative overflow-hidden" style={{ padding: '100px 0', backgroundColor: '#f5f5f5' }} id="gifting">
+      {/* Giant background text — Alukas "Collection" watermark */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+        <span
+          className="font-display font-medium whitespace-nowrap"
+          style={{ fontSize: '220px', color: '#e8e8e8', letterSpacing: '0.02em' }}
+        >
+          Collection
+        </span>
       </div>
 
-      <div className="relative container-luxury text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-2xl mx-auto"
-        >
-          <p className="text-gold text-[10px] tracking-[5px] uppercase font-body mb-5">Gifting</p>
-          <h2 className="font-display text-3xl sm:text-[44px] md:text-[52px] font-semibold text-white leading-[1.1] mb-5">
-            {heading}
-          </h2>
-          <p className="text-white/60 text-sm sm:text-base mb-10 font-body tracking-wide leading-relaxed">
-            {subheading}
-          </p>
+      <div className="relative container-luxury">
+        <div className="grid grid-cols-1 lg:grid-cols-2 items-center" style={{ gap: '60px' }}>
+          {/* Left — Image */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <img
+              src={image}
+              alt="Collection"
+              className="w-full object-cover"
+              style={{ height: '560px' }}
+            />
+          </motion.div>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-            <Link to="/shop?maxPrice=499">
-              <Button variant="solid" size="md">Under ₹499</Button>
+          {/* Right — Text */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: 0.15 }}
+            className="text-center lg:text-left"
+          >
+            <h2
+              className="font-display font-medium text-charcoal whitespace-pre-line"
+              style={{ fontSize: '33px', lineHeight: 1.2, marginBottom: '16px' }}
+            >
+              {heading}
+            </h2>
+            <p className="font-body text-[#777] leading-relaxed" style={{ fontSize: '16px', marginBottom: '28px', maxWidth: '420px' }}>
+              {subheading}
+            </p>
+            <Link
+              to="/shop"
+              className="underline-link inline-block font-body"
+              style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 500 }}
+            >
+              Shop the Collection
             </Link>
-            <Link to="/shop?minPrice=499&maxPrice=999">
-              <Button variant="white" size="md">₹499 — ₹999</Button>
-            </Link>
-            <Link to="/shop?minPrice=999">
-              <Button variant="gold-outline" size="md">₹999+</Button>
-            </Link>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
