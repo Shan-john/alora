@@ -1,24 +1,25 @@
 import { motion } from 'framer-motion';
 import { InstagramIcon } from '../common/Icons';
 
-export default function IGSection({ igPosts = [] }) {
+export default function IGSection({ igPosts = [], igHandle = 'alorabytrio' }) {
   if (!igPosts || igPosts.length === 0) return null;
 
   const posts = igPosts;
+  const handle = (igHandle || 'alorabytrio').replace(/^@/, '');
 
   return (
     <section className="bg-white" id="instagram">
       {/* Handle — centered above grid */}
       <div className="text-center" style={{ padding: '50px 0 30px' }}>
         <a
-          href="https://www.instagram.com/alorabytrio/"
+          href={`https://www.instagram.com/${handle}/`}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center font-body transition-colors duration-300 hover:text-gold"
           style={{ gap: '8px', fontSize: '13px', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#777' }}
         >
           <InstagramIcon size={16} />
-          @alorabytrio
+          @{handle}
         </a>
       </div>
 

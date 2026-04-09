@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { normalizeImageUrl } from '../utils/image';
 
 const CartContext = createContext();
 
@@ -42,7 +43,7 @@ export function CartProvider({ children }) {
         productId: product.id,
         name: product.name,
         price: product.salePrice || product.price,
-        image: product.images?.[0] || '',
+        image: normalizeImageUrl(product.images?.[0]) || '',
         variant,
         quantity,
         slug: product.slug,

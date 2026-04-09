@@ -15,6 +15,8 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Track from './pages/Track';
 import Checkout from './pages/Checkout';
+import FAQ from './pages/FAQ';
+import Compare from './pages/Compare';
 import NotFound from './pages/NotFound';
 import AdminLayout from './pages/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
@@ -54,6 +56,8 @@ export default function App() {
                 <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/compare" element={<Compare />} />
 
                 <Route path="/track" element={<Track />} />
                 <Route path="/checkout" element={<Checkout />} />

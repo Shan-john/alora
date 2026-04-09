@@ -11,7 +11,10 @@ async function apiRequest(path, options = {}) {
   }
 
   if (options.auth) {
-    const token = await getIdToken();
+    let token = await getIdToken();
+    if (!token && localStorage.getItem('alora_admin_logged_in') === 'true') {
+      token = 'local-admin';
+    }
     if (token) headers['Authorization'] = `Bearer ${token}`;
   }
 
@@ -61,14 +64,19 @@ export const adminApi = {
     const qs = new URLSearchParams(params).toString();
     return apiRequest(`/api/admin/products?${qs}`, { auth: true });
   },
-  createProduct: (formData) => apiRequest('/api/admin/products', {
+  getProduct: (id) => apiRequest(`/api/admin/products/${id}`, { auth: true }),
+  createProduct: (data) => apiRequest('/api/admin/products', {
     method: 'POST',
-    body: formData,
+    body: JSON.stringify(data),
     auth: true,
-    headers: {},
+  }),
+  importProducts: (rows) => apiRequest('/api/admin/products/import', {
+    method: 'POST',
+    body: JSON.stringify({ rows }),
+    auth: true,
   }),
   updateProduct: (id, data) => apiRequest(`/api/admin/products/${id}`, {
-    method: 'PATCH',
+    method: 'PUT',
     body: JSON.stringify(data),
     auth: true,
   }),

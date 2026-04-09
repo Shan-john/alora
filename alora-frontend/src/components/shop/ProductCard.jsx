@@ -6,6 +6,7 @@ import { useCart } from '../../context/CartContext';
 import StarRating from '../common/StarRating';
 import Badge from '../common/Badge';
 import { formatPrice, discountPercent } from '../../utils/format';
+import { normalizeImageUrl } from '../../utils/image';
 
 export default function ProductCard({ product }) {
   const { addItem } = useCart();
@@ -35,6 +36,9 @@ export default function ProductCard({ product }) {
     } catch {}
   };
 
+  const primaryImage = normalizeImageUrl(product.images?.[0]);
+  const secondaryImage = normalizeImageUrl(product.images?.[1]);
+
   return (
     <Link to={`/product/${product.id}`}>
       <div
@@ -45,7 +49,7 @@ export default function ProductCard({ product }) {
         {/* Image — Alukas: #f5f5f5 bg, square, object-contain */}
         <div className="relative aspect-square overflow-hidden" style={{ backgroundColor: '#f5f5f5' }}>
           <img
-            src={isHovered && product.images?.[1] ? product.images[1] : product.images?.[0]}
+            src={isHovered && secondaryImage ? secondaryImage : primaryImage}
             alt={product.name}
             className="w-full h-full object-contain transition-all duration-500 ease-out group-hover:scale-105"
             style={{ padding: '20px' }}
@@ -75,14 +79,7 @@ export default function ProductCard({ product }) {
             >
               <ShoppingBag size={16} strokeWidth={1.5} />
             </button>
-            <button
-              onClick={handleWishlist}
-              className="flex items-center justify-center text-charcoal hover:text-gold transition-colors duration-200 cursor-pointer"
-              style={{ width: '36px', height: '36px', borderRight: '1px solid #e5e5e5' }}
-              title="Wishlist"
-            >
-              <Heart size={16} strokeWidth={1.5} className={isWishlisted ? 'fill-red-500 text-red-500' : ''} />
-            </button>
+             
             <span
               className="flex items-center justify-center text-charcoal hover:text-gold transition-colors duration-200"
               style={{ width: '36px', height: '36px' }}

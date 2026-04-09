@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { normalizeImageUrl } from '../utils/image';
 
 const WishlistContext = createContext();
 
@@ -34,7 +35,7 @@ export function WishlistProvider({ children }) {
           id: product.id,
           name: product.name,
           price: product.salePrice || product.price,
-          image: product.images?.[0] || '',
+          image: normalizeImageUrl(product.images?.[0]) || '',
           slug: product.slug,
         }];
       }

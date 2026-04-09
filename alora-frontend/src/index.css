@@ -103,7 +103,7 @@ h6,
 .h6 {
   margin: 0;
   font-family: var(--font-display);
-  color: rgb(245, 207, 125)
+  color: stone-100;
   line-height: 1.08;
   letter-spacing: -0.02em;
 }

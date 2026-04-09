@@ -6,6 +6,8 @@ export default function Footer({ settings = {} }) {
   const year = new Date().getFullYear();
   const igHandle = settings.igHandle || 'alorabytrio';
   const whatsappNumber = settings.whatsappNumber || '919497711275';
+  const supportEmail = settings.supportEmail || 'hello@alorabytrio.com';
+  const supportPhoneLabel = settings.supportPhoneLabel || '+91 94977 11275';
 
   return (
     <footer className="bg-white text-charcoal" style={{ borderTop: '1px solid #e5e5e5' }}>
@@ -21,9 +23,6 @@ export default function Footer({ settings = {} }) {
               {[
                 { name: 'About Us', path: '/about' },
                 { name: 'Contact Us', path: '/contact' },
-                { name: 'Track Order', path: '/track' },
-                { name: 'Privacy Policy', path: '/privacy' },
-                { name: 'Returns Policy', path: '/returns' },
               ].map(link => (
                 <Link
                   key={link.path}
@@ -44,7 +43,6 @@ export default function Footer({ settings = {} }) {
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {[
-                { name: 'My Account', path: '/account' },
                 { name: 'Wishlist', path: '/wishlist' },
                 { name: 'Shopping Cart', path: '/cart' },
                 { name: 'FAQs', path: '/faq' },
@@ -104,7 +102,7 @@ export default function Footer({ settings = {} }) {
                   style={{ gap: '8px', fontSize: '18px', fontWeight: 600 }}
                 >
                   <Phone size={18} strokeWidth={1.5} />
-                  +91 94977 11275
+                  {supportPhoneLabel}
                 </a>
               </div>
               {/* Instagram */}
@@ -121,7 +119,7 @@ export default function Footer({ settings = {} }) {
               {/* Email */}
               <div className="flex items-center font-body" style={{ gap: '8px', fontSize: '15px', color: '#777' }}>
                 <Mail size={16} strokeWidth={1.5} />
-                hello@alorabytrio.com
+                {supportEmail}
               </div>
 
               {/* Social icons */}
@@ -129,7 +127,7 @@ export default function Footer({ settings = {} }) {
                 {[
                   { icon: <Instagram size={16} />, url: `https://instagram.com/${igHandle}` },
                   { icon: <MessageCircle size={16} strokeWidth={1.5} />, url: `https://wa.me/${whatsappNumber}` },
-                  { icon: <Mail size={16} strokeWidth={1.5} />, url: 'mailto:hello@alorabytrio.com' },
+                  { icon: <Mail size={16} strokeWidth={1.5} />, url: `mailto:${supportEmail}` },
                 ].map((social, i) => (
                   <a
                     key={i}
@@ -161,31 +159,10 @@ export default function Footer({ settings = {} }) {
             </p>
           </div>
           <div className="flex items-center" style={{ gap: '24px' }}>
-            {['Privacy Policy', 'Returns'].map(item => (
-              <Link
-                key={item}
-                to={`/${item.toLowerCase().replace(/ /g, '-')}`}
-                className="font-body transition-colors hover:text-charcoal"
-                style={{ fontSize: '14px', color: '#777' }}
-              >
-                {item}
-              </Link>
-            ))}
           </div>
         </div>
       </div>
 
-      {/* Fixed WhatsApp FAB */}
-      <a
-        href={`https://wa.me/${whatsappNumber}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed z-40 flex items-center justify-center bg-green-500 hover:bg-green-600 shadow-lg transition-all duration-300 hover:scale-105 rounded-full"
-        style={{ bottom: '24px', right: '24px', width: '48px', height: '48px' }}
-        id="whatsapp-float"
-      >
-        <MessageCircle size={22} className="text-white" strokeWidth={1.5} />
-      </a>
     </footer>
   );
 }

@@ -20,6 +20,7 @@ import { api } from "../utils/api";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { formatPrice, discountPercent } from "../utils/format";
+import { normalizeImageUrl } from "../utils/image";
 import StarRating from "../components/common/StarRating";
 import Badge from "../components/common/Badge";
 import Button from "../components/common/Button";
@@ -112,6 +113,9 @@ export default function ProductDetail() {
   const discount = hasDiscount
     ? discountPercent(product.price, product.salePrice)
     : 0;
+  const normalizedImages = (product.images || []).map((img) => normalizeImageUrl(img));
+  const selectedImageUrl =
+    normalizedImages?.[selectedImage] || normalizedImages?.[0] || "";
 
   const handleAddToCart = () => {
     addItem(product, selectedVariant, quantity);
@@ -130,7 +134,7 @@ export default function ProductDetail() {
           property="og:description"
           content={product.description?.substring(0, 160)}
         />
-        <meta property="og:image" content={product.images?.[0]} />
+        <meta property="og:image" content={normalizedImages?.[0] || ""} />
       </Helmet>
 
       <div className="pt-24 sm:pt-32 pb-24 bg-[#f6f6f6]">
@@ -240,7 +244,7 @@ export default function ProductDetail() {
                 key={selectedImage}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                src={product.images?.[selectedImage] || product.images?.[0]}
+                src={selectedImageUrl}
                 alt={product.name}
                 style={{
                   ...zoomStyle,
@@ -383,8 +387,8 @@ export default function ProductDetail() {
           viewport={{ once: true }}
           transition={{ duration: 1.5, ease: "easeOut" }}
           src={
-            product.images?.[1] ||
-            product.images?.[0] ||
+            normalizedImages?.[1] ||
+            normalizedImages?.[0] ||
             "https://images.unsplash.com/photo-1600607686527-6fb886090705?q=80&w=2000&auto=format&fit=crop"
           }
           alt="Product Lifestyle"

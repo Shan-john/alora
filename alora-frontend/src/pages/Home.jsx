@@ -55,7 +55,7 @@ export default function Home() {
        
 
       {/* 9. Full-bleed Instagram strip */}
-      <IGSection igPosts={settings?.igPosts} />
+      <IGSection igPosts={settings?.igPosts} igHandle={settings?.igHandle} />
 
     </>
   );
