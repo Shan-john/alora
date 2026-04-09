@@ -2,6 +2,17 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/database');
 
+const ensureProductClickTable = async () => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS product_clicks (
+      id SERIAL PRIMARY KEY,
+      product_id VARCHAR(50) REFERENCES products(id) ON DELETE CASCADE,
+      source VARCHAR(50) DEFAULT 'unknown',
+      clicked_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+};
+
 // GET /api/products — list active products with filters
 router.get('/', async (req, res) => {
   try {
@@ -68,6 +79,34 @@ router.get('/', async (req, res) => {
   } catch (err) {
     console.error('GET /products error:', err);
     res.status(500).json({ error: 'Failed to fetch products' });
+  }
+});
+
+// POST /api/products/:id/click — track product click/view
+router.post('/:id/click', async (req, res) => {
+  try {
+    await ensureProductClickTable();
+    const source = (req.body?.source || 'unknown').toString().slice(0, 50);
+    const productIdentifier = req.params.id;
+
+    const { rows } = await pool.query(
+      'SELECT id FROM products WHERE id = $1 OR slug = $1 LIMIT 1',
+      [productIdentifier]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    await pool.query(
+      'INSERT INTO product_clicks (product_id, source) VALUES ($1, $2)',
+      [rows[0].id, source]
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('POST /products/:id/click error:', err);
+    res.status(500).json({ error: 'Failed to track click' });
   }
 });
 

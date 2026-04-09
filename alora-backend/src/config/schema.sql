@@ -135,6 +135,14 @@ CREATE TABLE IF NOT EXISTS enquiries (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 14. Product Click Analytics
+CREATE TABLE IF NOT EXISTS product_clicks (
+    id SERIAL PRIMARY KEY,
+    product_id VARCHAR(50) REFERENCES products(id) ON DELETE CASCADE,
+    source VARCHAR(50) DEFAULT 'unknown',
+    clicked_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Update triggers for updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$

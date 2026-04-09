@@ -7,6 +7,7 @@ import StarRating from '../common/StarRating';
 import Badge from '../common/Badge';
 import { formatPrice, discountPercent } from '../../utils/format';
 import { normalizeImageUrl } from '../../utils/image';
+import { api } from '../../utils/api';
 
 export default function ProductCard({ product }) {
   const { addItem } = useCart();
@@ -39,8 +40,12 @@ export default function ProductCard({ product }) {
   const primaryImage = normalizeImageUrl(product.images?.[0]);
   const secondaryImage = normalizeImageUrl(product.images?.[1]);
 
+  const handleProductClick = () => {
+    api.trackProductClick(product.id, 'card-click').catch(() => {});
+  };
+
   return (
-    <Link to={`/product/${product.id}`}>
+    <Link to={`/product/${product.id}`} onClick={handleProductClick}>
       <div
         className="group"
         onMouseEnter={() => setIsHovered(true)}

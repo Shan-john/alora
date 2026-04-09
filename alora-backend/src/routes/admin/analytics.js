@@ -2,45 +2,114 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../../config/database');
 
-// GET /api/admin/dashboard — Overview metrics
+const ensureProductClickTable = async () => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS product_clicks (
+      id SERIAL PRIMARY KEY,
+      product_id VARCHAR(50) REFERENCES products(id) ON DELETE CASCADE,
+      source VARCHAR(50) DEFAULT 'unknown',
+      clicked_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+};
+
+const toInt = (value, fallback) => {
+  const parsed = Number.parseInt(value, 10);
+  return Number.isNaN(parsed) ? fallback : parsed;
+};
+
+// GET /api/admin/dashboard — Product Click Analytics
 router.get('/', async (req, res) => {
   try {
-    const metrics = {
-      totalRevenue: 0,
-      totalOrders: 0,
-      productsCount: 0,
-      recentOrders: []
-    };
+    await ensureProductClickTable();
 
-    // Revenue & Total Orders
-    const { rows: orderStats } = await pool.query('SELECT SUM(total) as revenue, COUNT(id) as count FROM orders');
-    if (orderStats.length > 0) {
-      metrics.totalRevenue = Number(orderStats[0].revenue) || 0;
-      metrics.totalOrders = Number(orderStats[0].count) || 0;
-    }
+    const days = Math.max(1, Math.min(365, toInt(req.query.days, 30)));
+    const limit = Math.max(5, Math.min(50, toInt(req.query.limit, 10)));
 
-    // Products Count
-    const { rows: prodStats } = await pool.query('SELECT COUNT(id) as count FROM products');
-    if (prodStats.length > 0) {
-      metrics.productsCount = Number(prodStats[0].count) || 0;
-    }
+    const { rows: summaryRows } = await pool.query(
+      `
+      SELECT
+        COUNT(*)::int AS "totalClicks",
+        COUNT(DISTINCT product_id)::int AS "uniqueProductsClicked"
+      FROM product_clicks
+      WHERE clicked_at >= NOW() - ($1::text || ' days')::interval
+      `,
+      [days]
+    );
 
-    // Recent 5 Orders
-    const { rows: recentOrders } = await pool.query(`
-      SELECT 
-        id as "orderId", 
-        customer_name as "customerName", 
-        total, 
-        status, 
-        created_at as "createdAt" 
-      FROM orders 
-      ORDER BY created_at DESC 
-      LIMIT 5
-    `);
-    
-    metrics.recentOrders = recentOrders;
+    const { rows: topClickedRows } = await pool.query(
+      `
+      SELECT
+        p.id,
+        p.slug,
+        p.name,
+        p.category_slug AS category,
+        p.status,
+        COUNT(pc.id)::int AS clicks,
+        MAX(pc.clicked_at) AS "lastClickedAt",
+        (
+          SELECT image_url
+          FROM product_images
+          WHERE product_id = p.id
+          ORDER BY display_order
+          LIMIT 1
+        ) AS image
+      FROM products p
+      JOIN product_clicks pc ON pc.product_id = p.id
+      WHERE pc.clicked_at >= NOW() - ($1::text || ' days')::interval
+      GROUP BY p.id, p.slug, p.name, p.category_slug, p.status
+      ORDER BY clicks DESC, "lastClickedAt" DESC
+      LIMIT $2
+      `,
+      [days, limit]
+    );
 
-    res.json(metrics);
+    const { rows: lowClickedRows } = await pool.query(
+      `
+      SELECT
+        p.id,
+        p.slug,
+        p.name,
+        p.category_slug AS category,
+        p.status,
+        COALESCE(COUNT(pc.id), 0)::int AS clicks,
+        MAX(pc.clicked_at) AS "lastClickedAt",
+        (
+          SELECT image_url
+          FROM product_images
+          WHERE product_id = p.id
+          ORDER BY display_order
+          LIMIT 1
+        ) AS image
+      FROM products p
+      LEFT JOIN product_clicks pc
+        ON pc.product_id = p.id
+        AND pc.clicked_at >= NOW() - ($1::text || ' days')::interval
+      WHERE p.status = 'active'
+      GROUP BY p.id, p.slug, p.name, p.category_slug, p.status
+      ORDER BY clicks ASC, p.created_at DESC
+      LIMIT $2
+      `,
+      [days, limit]
+    );
+
+    const summary = summaryRows[0] || { totalClicks: 0, uniqueProductsClicked: 0 };
+    const topProduct = topClickedRows[0] || null;
+    const lowProduct = lowClickedRows[0] || null;
+
+    res.json({
+      periodDays: days,
+      kpis: {
+        totalClicks: Number(summary.totalClicks || 0),
+        uniqueProductsClicked: Number(summary.uniqueProductsClicked || 0),
+        topProductName: topProduct?.name || null,
+        topProductClicks: topProduct?.clicks || 0,
+        lowProductName: lowProduct?.name || null,
+        lowProductClicks: lowProduct?.clicks ?? 0,
+      },
+      topClickedProducts: topClickedRows,
+      lowClickedProducts: lowClickedRows,
+    });
   } catch (err) {
     console.error('GET /admin/dashboard error:', err);
     res.status(500).json({ error: 'Failed to fetch analytics' });

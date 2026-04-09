@@ -3,14 +3,13 @@ import { Link, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { PageSpinner } from '../../components/common/Spinner';
 import {
-  LayoutDashboard, Package, Users, Star,
+  LayoutDashboard, Package, Star,
   Home, Settings, LogOut, ChevronRight, Lock
 } from 'lucide-react';
 
 const navItems = [
   { path: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { path: '/admin/products', label: 'Product Manager', icon: Package },
-  { path: '/admin/customers', label: 'Customers', icon: Users },
   { path: '/admin/reviews', label: 'Reviews', icon: Star },
   { path: '/admin/homepage', label: 'Homepage Blocks', icon: Home },
   { path: '/admin/settings', label: 'Content & Settings', icon: Settings },

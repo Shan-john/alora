@@ -41,6 +41,10 @@ export const api = {
   getProduct: (id) => apiRequest(`/api/products/${id}`),
   getCategories: () => apiRequest('/api/categories'),
   getReviews: (productId) => apiRequest(`/api/reviews/${productId}`),
+  submitReview: (data) => apiRequest('/api/reviews', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
   getSettings: () => apiRequest('/api/settings'),
   trackOrder: (orderId) => apiRequest(`/api/orders/track/${orderId}`),
   subscribe: (email) => apiRequest('/api/newsletter/subscribe', {
@@ -55,11 +59,19 @@ export const api = {
     method: 'POST',
     body: JSON.stringify(data),
   }),
+  trackProductClick: (id, source = 'unknown') => apiRequest(`/api/products/${id}/click`, {
+    method: 'POST',
+    body: JSON.stringify({ source }),
+  }),
 };
 
 // Admin API
 export const adminApi = {
-  getDashboard: () => apiRequest('/api/admin/dashboard', { auth: true }),
+  getDashboard: (params = {}) => {
+    const qs = new URLSearchParams(params).toString();
+    const suffix = qs ? `?${qs}` : '';
+    return apiRequest(`/api/admin/dashboard${suffix}`, { auth: true });
+  },
   getProducts: (params = {}) => {
     const qs = new URLSearchParams(params).toString();
     return apiRequest(`/api/admin/products?${qs}`, { auth: true });
@@ -100,16 +112,30 @@ export const adminApi = {
   },
   getCustomers: () => apiRequest('/api/admin/customers', { auth: true }),
   getCustomer: (id) => apiRequest(`/api/admin/customers/${id}`, { auth: true }),
-  getPendingReviews: () => apiRequest('/api/admin/reviews/pending', { auth: true }),
+  getPendingReviews: async () => {
+    const data = await apiRequest('/api/admin/reviews', { auth: true });
+    return {
+      ...data,
+      reviews: (data.reviews || []).filter((review) => !review.isApproved),
+    };
+  },
   getReviews: () => apiRequest('/api/admin/reviews', { auth: true }),
-  updateReview: (id, data) => apiRequest(`/api/admin/reviews/${id}`, {
-    method: 'PATCH',
-    body: JSON.stringify(data),
+  updateReview: (id, data) => apiRequest(`/api/admin/reviews/${id}/approve`, {
+    method: 'PUT',
+    body: JSON.stringify({ isApproved: data?.isApproved }),
     auth: true,
   }),
-  createReview: (data) => apiRequest('/api/admin/reviews', {
+  approveReview: (id, isApproved) => apiRequest(`/api/admin/reviews/${id}/approve`, {
+    method: 'PUT',
+    body: JSON.stringify({ isApproved }),
+    auth: true,
+  }),
+  createReview: (data) => apiRequest('/api/reviews', {
     method: 'POST',
     body: JSON.stringify(data),
+  }),
+  deleteReview: (id) => apiRequest(`/api/admin/reviews/${id}`, {
+    method: 'DELETE',
     auth: true,
   }),
   getCategories: () => apiRequest('/api/admin/categories', { auth: true }),

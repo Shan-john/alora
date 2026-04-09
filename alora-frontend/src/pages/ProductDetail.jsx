@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
@@ -14,6 +14,7 @@ import {
   RefreshCw,
   ShieldCheck,
   Maximize2,
+  Star,
 } from "lucide-react";
 import { InstagramIcon as Instagram } from "../components/common/Icons";
 import { api } from "../utils/api";
@@ -38,11 +39,19 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [reviews, setReviews] = useState([]);
+  const [reviewForm, setReviewForm] = useState({
+    customerName: "",
+    rating: 0,
+    reviewText: "",
+  });
+  const [reviewIdentity, setReviewIdentity] = useState("anonymous");
+  const [submittingReview, setSubmittingReview] = useState(false);
   const [zoomStyle, setZoomStyle] = useState({
     transformOrigin: "center center",
     transform: "scale(1)",
   });
   const [isZoomed, setIsZoomed] = useState(false);
+  const trackedProductRef = useRef(null);
   
   const { toggleWishlist, isInWishlist } = useWishlist();
   const isWishlisted = product ? isInWishlist(product.id) : false;
@@ -93,6 +102,14 @@ export default function ProductDetail() {
     fetchProduct();
   }, [id]);
 
+  useEffect(() => {
+    if (!product?.id) return;
+    if (trackedProductRef.current === product.id) return;
+
+    trackedProductRef.current = product.id;
+    api.trackProductClick(product.id, "detail-view").catch(() => {});
+  }, [product]);
+
   if (loading) return <PageSpinner />;
 
   if (!product) {
@@ -119,6 +136,42 @@ export default function ProductDetail() {
 
   const handleAddToCart = () => {
     addItem(product, selectedVariant, quantity);
+  };
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (!product?.id) return;
+
+    if (!reviewForm.reviewText.trim() || !reviewForm.rating) {
+      toast.error("Please add rating and review message");
+      return;
+    }
+
+    if (reviewIdentity === "named" && !reviewForm.customerName.trim()) {
+      toast.error("Please enter your name or choose Anonymous");
+      return;
+    }
+
+    const reviewerName =
+      reviewIdentity === "named" ? reviewForm.customerName.trim() : "Anonymous";
+
+    setSubmittingReview(true);
+    try {
+      await api.submitReview({
+        productId: product.id,
+        customerName: reviewerName,
+        rating: reviewForm.rating,
+        reviewText: reviewForm.reviewText.trim(),
+      });
+      const latestReviews = await api.getReviews(product.id);
+      setReviews(latestReviews.reviews || []);
+      toast.success("Thanks! Your review was added.");
+      setReviewForm({ customerName: reviewIdentity === "named" ? reviewerName : "", rating: 0, reviewText: "" });
+    } catch (error) {
+      toast.error(error.message || "Failed to submit review");
+    } finally {
+      setSubmittingReview(false);
+    }
   };
 
   return (
@@ -396,6 +449,133 @@ export default function ProductDetail() {
         />
         <div className="absolute inset-0 bg-black/5" />
       </motion.div>
+
+      {/* Reviews Section */}
+      <section className="bg-white py-16 border-t border-[#e5e5e5]">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8 xl:px-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <div>
+              <p className="text-gold text-xs tracking-[4px] uppercase font-body mb-3">Reviews</p>
+              <h2 className="font-display text-[32px] text-[#222] font-normal mb-2">Customer Reviews</h2>
+              <p className="text-sm text-[#777] font-body mb-6">
+                {reviews.length} approved {reviews.length === 1 ? "review" : "reviews"} for this product
+              </p>
+
+              <div className="space-y-4 max-h-[440px] overflow-y-auto pr-2">
+                {reviews.length === 0 ? (
+                  <div className="p-4 border border-[#e5e5e5] rounded-lg">
+                    <p className="text-sm text-[#777] font-body">No reviews yet. Be the first to share your feedback.</p>
+                  </div>
+                ) : (
+                  reviews.map((review) => (
+                    <div key={review.id} className="p-4 border border-[#e5e5e5] rounded-lg">
+                      <div className="flex items-center justify-between gap-3 mb-2">
+                        <p className="font-body text-[14px] font-semibold text-[#222]">{review.customer_name}</p>
+                        <StarRating rating={review.rating} size={13} showCount={false} />
+                      </div>
+                      <p className="font-body text-[14px] text-[#666] leading-[1.7]">{review.review_text}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-gold text-xs tracking-[4px] uppercase font-body mb-3">Write Review</p>
+              <h3 className="font-display text-[28px] text-[#222] font-normal mb-6">Add Your Review</h3>
+
+              <form onSubmit={handleReviewSubmit} className="space-y-4">
+                <div>
+                  <label className="font-body text-[12px] uppercase tracking-[0.08em] text-[#777] mb-2 block">
+                    Name Option
+                  </label>
+                  <div className="flex items-center gap-4">
+                    <label className="inline-flex items-center gap-2 text-[14px] text-[#555] font-body">
+                      <input
+                        type="radio"
+                        name="reviewIdentity"
+                        checked={reviewIdentity === "anonymous"}
+                        onChange={() => setReviewIdentity("anonymous")}
+                      />
+                      Anonymous
+                    </label>
+                    <label className="inline-flex items-center gap-2 text-[14px] text-[#555] font-body">
+                      <input
+                        type="radio"
+                        name="reviewIdentity"
+                        checked={reviewIdentity === "named"}
+                        onChange={() => setReviewIdentity("named")}
+                      />
+                      Add Name
+                    </label>
+                  </div>
+                </div>
+
+                {reviewIdentity === "named" && (
+                  <div>
+                    <label className="font-body text-[12px] uppercase tracking-[0.08em] text-[#777] mb-2 block">
+                      Your Name
+                    </label>
+                    <input
+                      type="text"
+                      value={reviewForm.customerName}
+                      onChange={(event) => setReviewForm((prev) => ({ ...prev, customerName: event.target.value }))}
+                      className="w-full py-3 px-3 border border-[#ddd] rounded-md text-[14px] font-body focus:outline-none focus:border-charcoal"
+                      placeholder="Enter your name"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label className="font-body text-[12px] uppercase tracking-[0.08em] text-[#777] mb-2 block">
+                    Your Rating
+                  </label>
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((starValue) => (
+                      <button
+                        key={starValue}
+                        type="button"
+                        onClick={() => setReviewForm((prev) => ({ ...prev, rating: starValue }))}
+                        className="p-1"
+                        aria-label={`Rate ${starValue} star${starValue > 1 ? "s" : ""}`}
+                      >
+                        <Star
+                          size={22}
+                          className={starValue <= reviewForm.rating ? "fill-gold text-gold" : "text-stone-300"}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="font-body text-[12px] uppercase tracking-[0.08em] text-[#777] mb-2 block">
+                    Your Review
+                  </label>
+                  <textarea
+                    rows={5}
+                    value={reviewForm.reviewText}
+                    onChange={(event) => setReviewForm((prev) => ({ ...prev, reviewText: event.target.value }))}
+                    className="w-full py-3 px-3 border border-[#ddd] rounded-md text-[14px] font-body focus:outline-none focus:border-charcoal resize-none"
+                    placeholder="Share your experience with this product"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submittingReview}
+                  className="py-3 px-6 bg-charcoal text-white text-[12px] font-bold tracking-[0.1em] uppercase hover:bg-black transition-colors disabled:opacity-60"
+                >
+                  {submittingReview ? "Submitting..." : "Submit Review"}
+                </button>
+                <p className="text-[12px] text-[#888] font-body">
+                  Reviews are verified before they appear publicly.
+                </p>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <CheckoutModal
         isOpen={checkoutOpen}

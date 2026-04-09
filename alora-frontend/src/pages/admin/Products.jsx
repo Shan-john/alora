@@ -94,6 +94,8 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [creatingCategory, setCreatingCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState('');
@@ -213,6 +215,49 @@ export default function Products() {
       toast.error(error.message || 'Failed to save product');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleCreateCategory = async () => {
+    const name = newCategoryName.trim();
+    const slug = toSlug(name);
+
+    if (!name) {
+      toast.error('Enter category name');
+      return;
+    }
+
+    if (!slug) {
+      toast.error('Invalid category name');
+      return;
+    }
+
+    if (categories.some((cat) => cat.slug === slug)) {
+      toast.error('Category already exists');
+      updateField('category', slug);
+      return;
+    }
+
+    setCreatingCategory(true);
+    try {
+      await adminApi.createCategory({
+        slug,
+        name,
+        image: '',
+        order: categories.length + 1,
+        isVisible: true,
+      });
+
+      const categoryData = await adminApi.getCategories().catch(() => ({ categories: [] }));
+      const updatedCategories = Array.isArray(categoryData?.categories) ? categoryData.categories : [];
+      setCategories(updatedCategories);
+      updateField('category', slug);
+      setNewCategoryName('');
+      toast.success('Category created');
+    } catch (error) {
+      toast.error(error.message || 'Failed to create category');
+    } finally {
+      setCreatingCategory(false);
     }
   };
 
@@ -464,6 +509,24 @@ export default function Products() {
                 <option key={cat.slug} value={cat.slug}>{cat.name}</option>
               ))}
             </select>
+            <div className="mt-2 flex flex-col sm:flex-row gap-2">
+              <input
+                type="text"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                placeholder="Add new category name"
+                className="flex-1 py-2 px-3 border border-stone-200 rounded-lg text-sm"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleCreateCategory}
+                loading={creatingCategory}
+              >
+                <Plus size={14} className="mr-1" /> Add Category
+              </Button>
+            </div>
           </div>
 
           <div>

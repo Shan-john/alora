@@ -1,125 +1,161 @@
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { ShoppingCart, Clock, Calendar, DollarSign, AlertTriangle, Star } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { BarChart3, MousePointerClick, TrendingDown, TrendingUp } from 'lucide-react';
 import { adminApi } from '../../utils/api';
-import { formatPrice, timeAgo } from '../../utils/format';
+import { normalizeImageUrl } from '../../utils/image';
 import Badge from '../../components/common/Badge';
 import Spinner from '../../components/common/Spinner';
 
 const statusColors = {
-  pending: 'amber',
-  confirmed: 'blue',
-  processing: 'blue',
-  packed: 'purple',
-  shipped: 'green',
-  delivered: 'green',
-  cancelled: 'red',
+  active: 'green',
+  draft: 'gray',
+  hidden: 'amber',
+  archived: 'red',
 };
 
+const rangeOptions = [
+  { value: 7, label: 'Last 7 Days' },
+  { value: 30, label: 'Last 30 Days' },
+  { value: 90, label: 'Last 90 Days' },
+];
+
+function ProductTable({ title, icon: Icon, rows = [], emptyText }) {
+  return (
+    <div className="bg-white rounded-xl border border-stone-100 overflow-hidden">
+      <div className="px-5 py-4 border-b border-stone-100 flex items-center gap-2">
+        <Icon size={16} className="text-gold" />
+        <h2 className="font-body text-sm font-semibold text-charcoal">{title}</h2>
+      </div>
+
+      {rows.length === 0 ? (
+        <p className="text-center py-8 text-stone-400 text-sm">{emptyText}</p>
+      ) : (
+        <div className="divide-y divide-stone-50">
+          {rows.map((product, index) => (
+            <div key={product.id} className="px-5 py-3 flex items-center justify-between gap-3 hover:bg-stone-50 transition-colors">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="text-xs text-stone-400 w-5 text-right">{index + 1}</span>
+                <img
+                  src={normalizeImageUrl(product.image)}
+                  alt=""
+                  className="w-10 h-10 rounded object-cover bg-stone-100"
+                />
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-charcoal truncate">{product.name}</p>
+                  <p className="text-xs text-stone-500 truncate">{product.category || 'uncategorized'}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge color={statusColors[product.status] || 'gray'}>{product.status}</Badge>
+                <span className="text-sm font-semibold text-charcoal min-w-[44px] text-right">{product.clicks}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Dashboard() {
-  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [days, setDays] = useState(30);
+  const [data, setData] = useState(null);
+
+  const fetchAnalytics = async (periodDays = days) => {
+    setLoading(true);
+    try {
+      const result = await adminApi.getDashboard({ days: periodDays, limit: 10 });
+      setData(result);
+    } catch {
+      setData(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    adminApi.getDashboard()
-      .then(setData)
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+    fetchAnalytics(days);
+  }, [days]);
+
+  const kpis = useMemo(() => data?.kpis || {}, [data]);
+  const topClickedProducts = data?.topClickedProducts || [];
+  const lowClickedProducts = data?.lowClickedProducts || [];
 
   if (loading) return <Spinner size="lg" className="py-20" />;
 
-  const kpis = data?.kpis || {};
-  const recentOrders = data?.recentOrders || [];
-  const lowStock = data?.lowStockProducts || [];
-
   return (
-    <div>
-      <h1 className="font-display text-2xl font-semibold text-charcoal mb-6">Dashboard</h1>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-semibold text-charcoal">Analytics Dashboard</h1>
+          <p className="text-sm text-stone-500">See which products customers click the most and least.</p>
+        </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <select
+          value={days}
+          onChange={(event) => setDays(Number(event.target.value))}
+          className="py-2 px-3 border border-stone-200 rounded-lg text-sm bg-white"
+        >
+          {rangeOptions.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Orders', value: kpis.totalOrders || 0, icon: ShoppingCart, color: 'bg-blue-50 text-blue-600' },
-          { label: 'Pending Orders', value: kpis.pendingOrders || 0, icon: Clock, color: 'bg-amber-50 text-amber-600' },
-          { label: 'Orders Today', value: kpis.ordersToday || 0, icon: Calendar, color: 'bg-green-50 text-green-600' },
-          { label: 'Revenue', value: formatPrice(kpis.revenue || 0), icon: DollarSign, color: 'bg-gold/10 text-gold' },
-        ].map((kpi, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="bg-white rounded-xl p-5 border border-stone-100"
-          >
+          {
+            label: 'Total Clicks',
+            value: kpis.totalClicks || 0,
+            icon: MousePointerClick,
+            color: 'bg-blue-50 text-blue-600',
+          },
+          {
+            label: 'Products Clicked',
+            value: kpis.uniqueProductsClicked || 0,
+            icon: BarChart3,
+            color: 'bg-green-50 text-green-600',
+          },
+          {
+            label: 'Top Product',
+            value: kpis.topProductName || 'No data',
+            sub: `${kpis.topProductClicks || 0} clicks`,
+            icon: TrendingUp,
+            color: 'bg-gold/10 text-gold',
+          },
+          {
+            label: 'Lowest Product',
+            value: kpis.lowProductName || 'No data',
+            sub: `${kpis.lowProductClicks ?? 0} clicks`,
+            icon: TrendingDown,
+            color: 'bg-amber-50 text-amber-700',
+          },
+        ].map((kpi, index) => (
+          <div key={index} className="bg-white rounded-xl p-5 border border-stone-100">
             <div className={`w-10 h-10 rounded-lg ${kpi.color} flex items-center justify-center mb-3`}>
               <kpi.icon size={20} />
             </div>
-            <p className="text-2xl font-bold text-charcoal">{kpi.value}</p>
-            <p className="text-xs text-stone-500 uppercase tracking-wider mt-1">{kpi.label}</p>
-          </motion.div>
+            <p className="text-lg font-bold text-charcoal break-words">{kpi.value}</p>
+            {kpi.sub && <p className="text-xs text-stone-400 mt-0.5">{kpi.sub}</p>}
+            <p className="text-xs text-stone-500 uppercase tracking-wider mt-2">{kpi.label}</p>
+          </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Orders */}
-        <div className="bg-white rounded-xl border border-stone-100 overflow-hidden">
-          <div className="px-5 py-4 border-b border-stone-100">
-            <h2 className="font-body text-sm font-semibold text-charcoal">Recent Orders</h2>
-          </div>
-          <div className="divide-y divide-stone-50">
-            {recentOrders.length === 0 ? (
-              <p className="text-center py-8 text-stone-400 text-sm">No orders yet</p>
-            ) : (
-              recentOrders.slice(0, 6).map((order) => (
-                <div key={order.id} className="px-5 py-3 flex items-center justify-between hover:bg-stone-50 transition-colors">
-                  <div>
-                    <p className="text-sm font-medium text-charcoal">{order.customer?.name}</p>
-                    <p className="text-xs text-stone-500">{formatPrice(order.total)} · {order.items?.length} item(s)</p>
-                  </div>
-                  <div className="text-right">
-                    <Badge color={statusColors[order.status] || 'gray'}>{order.status}</Badge>
-                    <p className="text-[10px] text-stone-400 mt-1">{timeAgo(order.createdAt)}</p>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <ProductTable
+          title="Most Clicked Products"
+          icon={TrendingUp}
+          rows={topClickedProducts}
+          emptyText="No click data yet for this range"
+        />
 
-        {/* Alerts */}
-        <div className="space-y-4">
-          {/* Low Stock */}
-          <div className="bg-white rounded-xl border border-stone-100 overflow-hidden">
-            <div className="px-5 py-4 border-b border-stone-100 flex items-center gap-2">
-              <AlertTriangle size={16} className="text-amber-500" />
-              <h2 className="font-body text-sm font-semibold text-charcoal">Low Stock Alert</h2>
-            </div>
-            <div className="divide-y divide-stone-50">
-              {lowStock.length === 0 ? (
-                <p className="text-center py-6 text-stone-400 text-sm">All products well stocked ✓</p>
-              ) : (
-                lowStock.slice(0, 5).map((p) => (
-                  <div key={p.id} className="px-5 py-3 flex items-center justify-between">
-                    <span className="text-sm text-charcoal truncate">{p.name}</span>
-                    <Badge color="red">{p.stock} left</Badge>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* Pending Reviews */}
-          <div className="bg-white rounded-xl border border-stone-100 p-5 flex items-center gap-4">
-            <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
-              <Star size={20} className="text-purple-600" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-charcoal">{data?.pendingReviewsCount || 0} Pending Reviews</p>
-              <p className="text-xs text-stone-500">Reviews waiting for approval</p>
-            </div>
-          </div>
-        </div>
+        <ProductTable
+          title="Least Clicked Products"
+          icon={TrendingDown}
+          rows={lowClickedProducts}
+          emptyText="No active products available"
+        />
       </div>
     </div>
   );
