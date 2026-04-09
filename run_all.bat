@@ -4,8 +4,8 @@ echo        Starting Alora Development Servers
 echo ==============================================
 echo.
 
-echo [1/2] Starting Alora Backend...
-start "Alora Backend" cmd /k "cd alora-backend && npm run dev"
+@REM echo [1/2] Starting Alora Backend...
+@REM start "Alora Backend" cmd /k "cd alora-backend && npm run dev"
 
 echo [2/2] Starting Alora Frontend...
 start "Alora Frontend" cmd /k "cd alora-frontend && npm run dev"
