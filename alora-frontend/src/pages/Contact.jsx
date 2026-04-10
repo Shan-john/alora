@@ -6,8 +6,21 @@ import { InstagramIcon as Instagram } from "../components/common/Icons";
 import { api } from "../utils/api";
 import Button from "../components/common/Button";
 import toast from "react-hot-toast";
+import { useOutletContext } from "react-router-dom";
 
 export default function Contact() {
+  const { settings = {} } = useOutletContext() || {};
+  
+  const igHandle = settings.igHandle || "alorabytrio";
+  const whatsappNumber = String(
+    settings.whatsappNumber || "9191884 57331",
+  ).replace(/\D/g, "");
+  const supportEmail = settings.supportEmail || "hello@alorabytrio.com";
+  const supportPhoneLabel =
+    whatsappNumber.length === 12 && whatsappNumber.startsWith("91")
+      ? `+${whatsappNumber.slice(0, 2)} ${whatsappNumber.slice(2, 7)} ${whatsappNumber.slice(7)}`
+      : `+${whatsappNumber}`;
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -83,7 +96,7 @@ export default function Contact() {
                     Email Address
                   </h4>
                   <p className="font-body text-[14px] text-[#666]">
-                    hello@alorabytrio.com
+                    {supportEmail}
                   </p>
                 </div>
               </div>
@@ -100,9 +113,9 @@ export default function Contact() {
                   <h4 className="font-body text-[16px] font-medium text-[#222] mb-1">
                     WhatsApp Chat
                   </h4>
-                  <p className="font-body text-[14px] text-[#666]">
-                    +91 91884 57331
-                  </p>
+                  <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="font-body text-[14px] text-[#666] hover:text-[#c9a96e] transition-colors">
+                    {supportPhoneLabel}
+                  </a>
                   <p className="font-body text-[13px] text-[#999] mt-1">
                     Available 9 AM - 6 PM
                   </p>
@@ -112,7 +125,7 @@ export default function Contact() {
               <div
                 className="flex items-start gap-4 group cursor-pointer"
                 onClick={() =>
-                  window.open("https://instagram.com/alorabytrio", "_blank")
+                  window.open(`https://instagram.com/${igHandle}`, "_blank")
                 }
               >
                 <div className="w-[54px] h-[54px] rounded-full flex items-center justify-center shrink-0 border border-[#e5e5e5] bg-white group-hover:bg-black transition-colors duration-300">
@@ -126,7 +139,7 @@ export default function Contact() {
                     Instagram
                   </h4>
                   <p className="font-body text-[14px] text-[#666]">
-                    @alorabytrio
+                    @{igHandle}
                   </p>
                 </div>
               </div>
