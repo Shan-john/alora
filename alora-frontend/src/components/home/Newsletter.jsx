@@ -98,7 +98,7 @@ export default function Newsletter() {
           >
             {isUnsubscribe
               ? 'We\'re sorry to see you go. Enter your email below to unsubscribe.'
-              : (subscribed ? 'Thanks for being a part of our community!' : 'Be the first to know about new arrivals, exclusive offers, and styling tips delivered straight to your inbox.')}
+              : (subscribed ? 'Thanks for being a part of our community!' : 'Be the first to know about new arrivals, exclusive offers.')}
           </p>
 
           {/* Form or Success */}
