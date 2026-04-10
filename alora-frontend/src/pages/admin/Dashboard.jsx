@@ -195,25 +195,25 @@ function EngagementRing({ engaged, dead, engagementRate }) {
 }
 
 /* ── Product table with % bars and source split ── */
-function ProductTable({ title, icon: Icon, rows = [], emptyText, totalClicks = 0 }) {
+function ProductTable({ title, icon: Icon, rows = [], emptyText, totalClicks = 0, isMost = true }) {
   return (
-    <Section title={title} icon={Icon}>
+    <Section title={title} icon={Icon} className="flex flex-col h-[400px]">
       {rows.length === 0 ? (
         <p className="text-center py-6 text-stone-400 text-sm">{emptyText}</p>
       ) : (
-        <div className="space-y-1 -mx-5 -mb-5">
+        <div className="space-y-0 -mx-5 -mb-5 flex-1 overflow-y-auto flex flex-col">
           {rows.map((product, index) => {
             const percentage = totalClicks > 0 ? ((product.clicks / totalClicks) * 100).toFixed(1) : 0;
             return (
               <div
                 key={product.id}
-                className="px-5 py-4 flex items-center justify-between gap-4 hover:bg-stone-50/80 transition-colors border-b border-stone-50 last:border-0"
+                className="px-4 py-2.5 flex items-center justify-between gap-3 hover:bg-stone-50/80 transition-colors border-b border-stone-50 last:border-0 shrink-0"
               >
                 {/* Left: rank + image + info */}
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                   <span
-                    className={`text-sm font-bold w-6 text-center shrink-0 ${
-                      index === 0 ? 'text-yellow-500' : index === 1 ? 'text-stone-400' : index === 2 ? 'text-orange-700/70' : 'text-stone-300'
+                    className={`text-[11px] font-bold w-5 text-center shrink-0 ${
+                      isMost && index === 0 ? 'text-yellow-500' : isMost && index === 1 ? 'text-stone-400' : isMost && index === 2 ? 'text-orange-700/70' : 'text-stone-300'
                     }`}
                   >
                     #{index + 1}
@@ -221,37 +221,34 @@ function ProductTable({ title, icon: Icon, rows = [], emptyText, totalClicks = 0
                   <img
                     src={normalizeImageUrl(product.image)}
                     alt=""
-                    className="w-11 h-11 rounded-lg object-cover bg-stone-100 shadow-sm shrink-0"
+                    className="w-8 h-8 rounded-md object-cover bg-stone-100 shadow-sm shrink-0"
                   />
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-charcoal truncate">{product.name}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[11px] text-stone-500 capitalize truncate">
+                    <p className="text-[13px] font-semibold text-charcoal truncate">{product.name}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-stone-500 capitalize truncate">
                         {product.category?.replace(/-/g, ' ') || 'uncategorized'}
                       </span>
-                      <span className="w-1 h-1 rounded-full bg-stone-300 shrink-0" />
-                      <Badge color={statusColors[product.status] || 'gray'}>{product.status}</Badge>
                     </div>
                   </div>
                 </div>
 
                 {/* Right: stats */}
-                <div className="flex flex-col items-end gap-1.5 w-36 shrink-0">
+                <div className="flex flex-col items-end gap-1 w-28 shrink-0">
                   <div className="flex items-center justify-between w-full">
-                    <span className="text-sm font-bold text-charcoal">
-                      {product.clicks}
-                      <span className="text-[11px] font-normal text-stone-400 ml-1">clicks</span>
+                    <span className="text-[13px] font-bold text-charcoal">
+                      {product.clicks} <span className="text-[9px] font-normal text-stone-400">clicks</span>
                     </span>
-                    <span className="text-[11px] font-bold bg-stone-100 text-stone-600 px-1.5 py-0.5 rounded">
+                    <span className="text-[9px] font-bold text-stone-500">
                       {percentage}%
                     </span>
                   </div>
 
                   {/* Overall % bar */}
-                  <div className="w-full bg-stone-100 rounded-full h-2 overflow-hidden shadow-inner">
+                  <div className="w-full bg-stone-100 rounded-full h-1.5 overflow-hidden shadow-inner">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
-                        index === 0 ? 'bg-yellow-400' : index === 1 ? 'bg-stone-400' : index === 2 ? 'bg-orange-400' : 'bg-gold'
+                        isMost && index === 0 ? 'bg-yellow-400' : isMost && index === 1 ? 'bg-stone-400' : isMost && index === 2 ? 'bg-orange-400' : isMost ? 'bg-gold' : 'bg-stone-300'
                       }`}
                       style={{ width: `${Math.min(percentage, 100)}%` }}
                     />
@@ -259,8 +256,8 @@ function ProductTable({ title, icon: Icon, rows = [], emptyText, totalClicks = 0
 
                   {/* Source split mini-bar */}
                   {product.clicks > 0 && (
-                    <div className="w-full flex items-center gap-1.5 mt-0.5">
-                      <div className="flex-1 flex rounded-sm overflow-hidden h-1.5">
+                    <div className="w-full flex items-center gap-1 mt-0.5">
+                      <div className="flex-1 flex rounded-sm overflow-hidden h-[3px]">
                         <div
                           className="h-full"
                           style={{
@@ -276,9 +273,6 @@ function ProductTable({ title, icon: Icon, rows = [], emptyText, totalClicks = 0
                           }}
                         />
                       </div>
-                      <span className="text-[9px] text-stone-400 whitespace-nowrap">
-                        {product.cardClickPct || 0}% card · {product.detailClickPct || 0}% detail
-                      </span>
                     </div>
                   )}
                 </div>
@@ -518,13 +512,14 @@ export default function Dashboard() {
       </div>
 
       {/* ── Row: Top & Bottom Clicked Products ── */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ProductTable
           title="Most Clicked Products"
           icon={TrendingUp}
           rows={topClickedProducts}
           totalClicks={kpis.totalClicks || 0}
           emptyText="No click data yet for this range"
+          isMost={true}
         />
         <ProductTable
           title="Least Clicked Products"
@@ -532,6 +527,7 @@ export default function Dashboard() {
           rows={lowClickedProducts}
           totalClicks={kpis.totalClicks || 0}
           emptyText="No active products available"
+          isMost={false}
         />
       </div>
     </div>
