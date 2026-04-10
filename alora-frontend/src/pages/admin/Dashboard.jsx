@@ -511,8 +511,8 @@ export default function Dashboard() {
         </Section>
       </div>
 
-      {/* ── Row: Top & Bottom Clicked Products ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* ── Row: Top Clicked Products ── */}
+      <div className="w-full">
         <ProductTable
           title="Most Clicked Products"
           icon={TrendingUp}
@@ -520,14 +520,6 @@ export default function Dashboard() {
           totalClicks={kpis.totalClicks || 0}
           emptyText="No click data yet for this range"
           isMost={true}
-        />
-        <ProductTable
-          title="Least Clicked Products"
-          icon={TrendingDown}
-          rows={lowClickedProducts}
-          totalClicks={kpis.totalClicks || 0}
-          emptyText="No active products available"
-          isMost={false}
         />
       </div>
     </div>
