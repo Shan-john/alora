@@ -51,10 +51,11 @@ export default function Home() {
       <Testimonials />
 
       {/* 8. Newsletter signup */}
-      <Newsletter />
+    
 
       {/* 9. Full-bleed Instagram strip */}
       <IGSection igPosts={settings?.igPosts} igHandle={settings?.igHandle} />
+        <Newsletter /> 
 
     </>
   );
