@@ -16,8 +16,6 @@ app.use(cors({
     process.env.FRONTEND_URL || 'http://localhost:5173',
     'http://localhost:5173',
     'http://localhost:3000',
-    'https://alora-frontend-inky.vercel.app',
-    'https://alora-frontend-3y4o1fcfd-shanjohns-projects.vercel.app',
     'https://alora-zeta.vercel.app'
   ],
   credentials: true,
