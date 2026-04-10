@@ -54,10 +54,12 @@ export default function ProductDetail() {
   });
   const [isZoomed, setIsZoomed] = useState(false);
   const trackedProductRef = useRef(null);
-  
+
   const { toggleWishlist, isInWishlist } = useWishlist();
   const isWishlisted = product ? isInWishlist(product.id) : false;
-  const whatsappNumber = String(settings?.whatsappNumber || "919497711275").replace(/\D/g, "");
+  const whatsappNumber = String(
+    settings?.whatsappNumber || "9191884 57331",
+  ).replace(/\D/g, "");
 
   const handleWishlistAdd = () => {
     if (!product) return;
@@ -140,7 +142,9 @@ export default function ProductDetail() {
     ? discountPercent(product.price, product.salePrice)
     : 0;
   const actualReviewCount = reviews.length;
-  const normalizedImages = (product.images || []).map((img) => normalizeImageUrl(img));
+  const normalizedImages = (product.images || []).map((img) =>
+    normalizeImageUrl(img),
+  );
   const selectedImageUrl =
     normalizedImages?.[selectedImage] || normalizedImages?.[0] || "";
 
@@ -176,7 +180,11 @@ export default function ProductDetail() {
       const latestReviews = await api.getReviews(product.id);
       setReviews(latestReviews.reviews || []);
       toast.success("Thanks! Your review was added.");
-      setReviewForm({ customerName: reviewIdentity === "named" ? reviewerName : "", rating: 0, reviewText: "" });
+      setReviewForm({
+        customerName: reviewIdentity === "named" ? reviewerName : "",
+        rating: 0,
+        reviewText: "",
+      });
     } catch (error) {
       toast.error(error.message || "Failed to submit review");
     } finally {
@@ -198,7 +206,6 @@ export default function ProductDetail() {
       `- Price each: ${formatPrice(currentPrice)}`,
       `- Total: ${formatPrice(currentPrice * quantity)}`,
       `- Product page: ${window.location.href}`,
-       
     ];
     return messageLines.join("\n");
   };
@@ -212,15 +219,14 @@ export default function ProductDetail() {
       `- Quantity: ${quantity}`,
       `- Total: ${formatPrice(currentPrice * quantity)}`,
       `- Product page: ${window.location.href}`,
-       
     ];
-    
+
     if (product.description) {
       let desc = product.description;
       if (desc.length > 150) desc = desc.substring(0, 150) + "...";
       messageLines.push(`- Description: ${desc}`);
     }
-    
+
     return messageLines.join("\n");
   };
 
@@ -306,7 +312,8 @@ export default function ProductDetail() {
                     showCount={false}
                   />
                   <span className="font-body text-[12px] text-[#888]">
-                    ({actualReviewCount} customer {actualReviewCount === 1 ? "review" : "reviews"})
+                    ({actualReviewCount} customer{" "}
+                    {actualReviewCount === 1 ? "review" : "reviews"})
                   </span>
                 </div>
               )}
@@ -323,11 +330,10 @@ export default function ProductDetail() {
               </div>
 
               <p className="font-body text-[#666] text-[15px] leading-[1.8] mb-6 pr-2">
-                 
                 {/* Using standard filler to match reference if description is empty */}
-               {product.longDescription ||
-                      product.description ||
-                      "Detailed product information and specifications will be displayed here."}
+                {product.longDescription ||
+                  product.description ||
+                  "Detailed product information and specifications will be displayed here."}
               </p>
 
               <p className="font-body text-[13px] text-[#666] mb-0 flex items-center gap-1.5">
@@ -389,11 +395,21 @@ export default function ProductDetail() {
               {/* Order Type Radio */}
               <div className="mb-4 space-y-2 border border-[#e5e5e5] p-4 rounded bg-white">
                 <label className="flex items-center gap-2 cursor-pointer font-body text-[14px] text-[#444]">
-                  <input type="radio" checked={!isGiftOrder} onChange={() => setIsGiftOrder(false)} className="accent-charcoal" />
+                  <input
+                    type="radio"
+                    checked={!isGiftOrder}
+                    onChange={() => setIsGiftOrder(false)}
+                    className="accent-charcoal"
+                  />
                   Normal order
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer font-body text-[14px] text-[#444]">
-                  <input type="radio" checked={isGiftOrder} onChange={() => setIsGiftOrder(true)} className="accent-charcoal" />
+                  <input
+                    type="radio"
+                    checked={isGiftOrder}
+                    onChange={() => setIsGiftOrder(true)}
+                    className="accent-charcoal"
+                  />
                   Gift order
                 </label>
                 {isGiftOrder && (
@@ -436,26 +452,32 @@ export default function ProductDetail() {
                   rel="noopener noreferrer"
                   className="w-[65%] h-full bg-[#111] !text-white font-body text-[11px] sm:text-[12px] font-bold tracking-[0.05em] uppercase flex items-center justify-center hover:bg-black transition-colors text-center leading-tight whitespace-break-spaces px-2"
                 >
-                  {isGiftOrder ? 'SEND GIFT ORDER ON WHATSAPP' : 'BUY CONFIRMED'}
+                  {isGiftOrder
+                    ? "SEND GIFT ORDER ON WHATSAPP"
+                    : "BUY CONFIRMED"}
                 </a>
               </div>
 
               {/* Action Links */}
               <div className="space-y-4 mb-10 font-body text-[13px] text-[#666]">
-                <button 
+                <button
                   onClick={handleWishlistAdd}
                   className="flex items-center gap-2 hover:text-black transition-colors"
                 >
-                  <Heart 
-                    size={16} 
-                    strokeWidth={1.5} 
-                    className={isWishlisted ? "text-red-500 fill-red-500" : "text-[#333]"} 
+                  <Heart
+                    size={16}
+                    strokeWidth={1.5}
+                    className={
+                      isWishlisted ? "text-red-500 fill-red-500" : "text-[#333]"
+                    }
                   />{" "}
                   {isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
                 </button>
                 <div className="flex items-center justify-start">
                   <a
-                    href={buildWhatsAppLink(`Hi! I have a question about ${product.name}.`)}
+                    href={buildWhatsAppLink(
+                      `Hi! I have a question about ${product.name}.`,
+                    )}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 hover:text-black transition-colors"
@@ -475,7 +497,6 @@ export default function ProductDetail() {
               </div>
 
               {/* Description Area */}
-               
             </div>
           </div>
         </div>
@@ -510,25 +531,43 @@ export default function ProductDetail() {
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8 xl:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             <div>
-              <p className="text-gold text-xs tracking-[4px] uppercase font-body mb-3">Reviews</p>
-              <h2 className="font-display text-[32px] text-[#222] font-normal mb-2">Customer Reviews</h2>
+              <p className="text-gold text-xs tracking-[4px] uppercase font-body mb-3">
+                Reviews
+              </p>
+              <h2 className="font-display text-[32px] text-[#222] font-normal mb-2">
+                Customer Reviews
+              </h2>
               <p className="text-sm text-[#777] font-body mb-6">
-                {reviews.length} approved {reviews.length === 1 ? "review" : "reviews"} for this product
+                {reviews.length} approved{" "}
+                {reviews.length === 1 ? "review" : "reviews"} for this product
               </p>
 
               <div className="space-y-4 max-h-[440px] overflow-y-auto pr-2">
                 {reviews.length === 0 ? (
                   <div className="p-4 border border-[#e5e5e5] rounded-lg">
-                    <p className="text-sm text-[#777] font-body">No reviews yet. Be the first to share your feedback.</p>
+                    <p className="text-sm text-[#777] font-body">
+                      No reviews yet. Be the first to share your feedback.
+                    </p>
                   </div>
                 ) : (
                   reviews.map((review) => (
-                    <div key={review.id} className="p-4 border border-[#e5e5e5] rounded-lg">
+                    <div
+                      key={review.id}
+                      className="p-4 border border-[#e5e5e5] rounded-lg"
+                    >
                       <div className="flex items-center justify-between gap-3 mb-2">
-                        <p className="font-body text-[14px] font-semibold text-[#222]">{review.customer_name}</p>
-                        <StarRating rating={review.rating} size={13} showCount={false} />
+                        <p className="font-body text-[14px] font-semibold text-[#222]">
+                          {review.customer_name}
+                        </p>
+                        <StarRating
+                          rating={review.rating}
+                          size={13}
+                          showCount={false}
+                        />
                       </div>
-                      <p className="font-body text-[14px] text-[#666] leading-[1.7]">{review.review_text}</p>
+                      <p className="font-body text-[14px] text-[#666] leading-[1.7]">
+                        {review.review_text}
+                      </p>
                     </div>
                   ))
                 )}
@@ -536,8 +575,12 @@ export default function ProductDetail() {
             </div>
 
             <div>
-              <p className="text-gold text-xs tracking-[4px] uppercase font-body mb-3">Write Review</p>
-              <h3 className="font-display text-[28px] text-[#222] font-normal mb-6">Add Your Review</h3>
+              <p className="text-gold text-xs tracking-[4px] uppercase font-body mb-3">
+                Write Review
+              </p>
+              <h3 className="font-display text-[28px] text-[#222] font-normal mb-6">
+                Add Your Review
+              </h3>
 
               <form onSubmit={handleReviewSubmit} className="space-y-4">
                 <div>
@@ -574,7 +617,12 @@ export default function ProductDetail() {
                     <input
                       type="text"
                       value={reviewForm.customerName}
-                      onChange={(event) => setReviewForm((prev) => ({ ...prev, customerName: event.target.value }))}
+                      onChange={(event) =>
+                        setReviewForm((prev) => ({
+                          ...prev,
+                          customerName: event.target.value,
+                        }))
+                      }
                       className="w-full py-3 px-3 border border-[#ddd] rounded-md text-[14px] font-body focus:outline-none focus:border-charcoal"
                       placeholder="Enter your name"
                     />
@@ -590,13 +638,22 @@ export default function ProductDetail() {
                       <button
                         key={starValue}
                         type="button"
-                        onClick={() => setReviewForm((prev) => ({ ...prev, rating: starValue }))}
+                        onClick={() =>
+                          setReviewForm((prev) => ({
+                            ...prev,
+                            rating: starValue,
+                          }))
+                        }
                         className="p-1"
                         aria-label={`Rate ${starValue} star${starValue > 1 ? "s" : ""}`}
                       >
                         <Star
                           size={22}
-                          className={starValue <= reviewForm.rating ? "fill-gold text-gold" : "text-stone-300"}
+                          className={
+                            starValue <= reviewForm.rating
+                              ? "fill-gold text-gold"
+                              : "text-stone-300"
+                          }
                         />
                       </button>
                     ))}
@@ -610,7 +667,12 @@ export default function ProductDetail() {
                   <textarea
                     rows={5}
                     value={reviewForm.reviewText}
-                    onChange={(event) => setReviewForm((prev) => ({ ...prev, reviewText: event.target.value }))}
+                    onChange={(event) =>
+                      setReviewForm((prev) => ({
+                        ...prev,
+                        reviewText: event.target.value,
+                      }))
+                    }
                     className="w-full py-3 px-3 border border-[#ddd] rounded-md text-[14px] font-body focus:outline-none focus:border-charcoal resize-none"
                     placeholder="Share your experience with this product"
                   />
