@@ -18,38 +18,57 @@ const rangeOptions = [
   { value: 90, label: 'Last 90 Days' },
 ];
 
-function ProductTable({ title, icon: Icon, rows = [], emptyText }) {
+function ProductTable({ title, icon: Icon, rows = [], emptyText, totalClicks = 0 }) {
   return (
-    <div className="bg-white rounded-xl border border-stone-100 overflow-hidden">
-      <div className="px-5 py-4 border-b border-stone-100 flex items-center gap-2">
-        <Icon size={16} className="text-gold" />
-        <h2 className="font-body text-sm font-semibold text-charcoal">{title}</h2>
+    <div className="bg-white rounded-xl border border-stone-100 overflow-hidden shadow-sm">
+      <div className="px-5 py-4 border-b border-stone-100 flex items-center gap-2 bg-stone-50/50">
+        <Icon size={18} className="text-gold" />
+        <h2 className="font-body text-sm font-semibold text-charcoal uppercase tracking-wider">{title}</h2>
       </div>
 
       {rows.length === 0 ? (
         <p className="text-center py-8 text-stone-400 text-sm">{emptyText}</p>
       ) : (
         <div className="divide-y divide-stone-50">
-          {rows.map((product, index) => (
-            <div key={product.id} className="px-5 py-3 flex items-center justify-between gap-3 hover:bg-stone-50 transition-colors">
-              <div className="flex items-center gap-3 min-w-0">
-                <span className="text-xs text-stone-400 w-5 text-right">{index + 1}</span>
-                <img
-                  src={normalizeImageUrl(product.image)}
-                  alt=""
-                  className="w-10 h-10 rounded object-cover bg-stone-100"
-                />
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-charcoal truncate">{product.name}</p>
-                  <p className="text-xs text-stone-500 truncate">{product.category || 'uncategorized'}</p>
+          {rows.map((product, index) => {
+             const percentage = totalClicks > 0 ? ((product.clicks / totalClicks) * 100).toFixed(1) : 0;
+             return (
+              <div key={product.id} className="px-5 py-4 flex items-center justify-between gap-4 hover:bg-stone-50 transition-colors">
+                <div className="flex items-center gap-4 min-w-0">
+                  <span className={`text-sm font-bold w-6 text-center ${index === 0 ? 'text-yellow-500' : index === 1 ? 'text-stone-400' : index === 2 ? 'text-orange-700/70' : 'text-stone-300'}`}>
+                    #{index + 1}
+                  </span>
+                  <img
+                    src={normalizeImageUrl(product.image)}
+                    alt=""
+                    className="w-12 h-12 rounded-lg object-cover bg-stone-100 shadow-sm"
+                  />
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-charcoal truncate">{product.name}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-xs text-stone-500 truncate">{product.category || 'uncategorized'}</p>
+                      <span className="w-1 h-1 rounded-full bg-stone-300"></span>
+                      <Badge color={statusColors[product.status] || 'gray'}>{product.status}</Badge>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col justify-center items-end gap-1.5 w-28">
+                  <div className="flex items-center justify-between w-full">
+                      <span className="text-sm font-bold text-charcoal">{product.clicks} <span className="text-xs font-medium text-stone-400">clicks</span></span>
+                      <span className="text-xs text-stone-500 font-semibold bg-stone-100 px-1.5 py-0.5 rounded">
+                          {percentage}%
+                      </span>
+                  </div>
+                  <div className="w-full bg-stone-100 rounded-full h-2 overflow-hidden shadow-inner">
+                      <div 
+                          className={`h-full rounded-full transition-all duration-500 ${index === 0 ? 'bg-yellow-400' : index === 1 ? 'bg-stone-400' : index === 2 ? 'bg-orange-400' : 'bg-gold'}`} 
+                          style={{ width: `${Math.min(percentage, 100)}%` }}
+                      />
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Badge color={statusColors[product.status] || 'gray'}>{product.status}</Badge>
-                <span className="text-sm font-semibold text-charcoal min-w-[44px] text-right">{product.clicks}</span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
