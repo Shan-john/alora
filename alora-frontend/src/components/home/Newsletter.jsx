@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, ArrowRight, CheckCircle } from 'lucide-react';
 import { api } from '../../utils/api';
@@ -10,6 +10,12 @@ export default function Newsletter() {
   const [subscribed, setSubscribed] = useState(false);
   const [isUnsubscribe, setIsUnsubscribe] = useState(false);
 
+  useEffect(() => {
+    if (localStorage.getItem('alora_newsletter_subscribed') === 'true') {
+      setSubscribed(true);
+    }
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email.trim()) return;
@@ -20,10 +26,14 @@ export default function Newsletter() {
         await api.unsubscribe(email.trim());
         toast.success('Unsubscribed successfully.');
         setEmail('');
+        setIsUnsubscribe(false);
+        setSubscribed(false);
+        localStorage.removeItem('alora_newsletter_subscribed');
       } else {
         await api.subscribe(email.trim());
         setSubscribed(true);
         setEmail('');
+        localStorage.setItem('alora_newsletter_subscribed', 'true');
         toast.success('Subscribed successfully!');
       }
     } catch (err) {
@@ -80,7 +90,7 @@ export default function Newsletter() {
             className="font-display font-medium transition-all"
             style={{ fontSize: '30px', color: '#fff', lineHeight: 1.2, marginBottom: '12px' }}
           >
-            {isUnsubscribe ? 'Unsubscribe from Newsletter' : 'Subscribe to Our Newsletter'}
+            {isUnsubscribe ? 'Unsubscribe from Newsletter' : (subscribed ? 'You\'re Subscribed' : 'Subscribe to Our Newsletter')}
           </h2>
           <p
             className="font-body transition-all"
@@ -88,7 +98,7 @@ export default function Newsletter() {
           >
             {isUnsubscribe
               ? 'We\'re sorry to see you go. Enter your email below to unsubscribe.'
-              : 'Be the first to know about new arrivals, exclusive offers, and styling tips delivered straight to your inbox.'}
+              : (subscribed ? 'Thanks for being a part of our community!' : 'Be the first to know about new arrivals, exclusive offers, and styling tips delivered straight to your inbox.')}
           </p>
 
           {/* Form or Success */}
@@ -101,7 +111,7 @@ export default function Newsletter() {
             >
               <CheckCircle size={20} style={{ color: '#22c55e' }} />
               <span className="font-body" style={{ fontSize: '15px', color: '#22c55e' }}>
-                Thank you for subscribing!
+                You are currently subscribed.
               </span>
             </motion.div>
           ) : (
@@ -161,12 +171,20 @@ export default function Newsletter() {
             style={{ fontSize: '12px', color: '#555', marginTop: '20px' }}
           >
             {isUnsubscribe ? (
-              <button onClick={() => setIsUnsubscribe(false)} className="hover:text-[#c9a96e] transition-colors underline object-bottom">
+              <button 
+                onClick={() => {
+                  setIsUnsubscribe(false);
+                  if (localStorage.getItem('alora_newsletter_subscribed') === 'true') {
+                    setSubscribed(true);
+                  }
+                }} 
+                className="hover:text-[#c9a96e] transition-colors underline object-bottom"
+              >
                 Wait, I want to stay subscribed
               </button>
             ) : (
               <span>
-                No spam,{' '}
+                {subscribed ? 'Wish to stop receiving emails? ' : 'No spam, '}
                 <button
                   type="button"
                   onClick={() => {
@@ -175,7 +193,7 @@ export default function Newsletter() {
                   }}
                   className="hover:text-[#c9a96e] transition-colors underline"
                 >
-                  unsubscribe anytime
+                  {subscribed ? 'Unsubscribe here' : 'unsubscribe anytime'}
                 </button>.
               </span>
             )}
