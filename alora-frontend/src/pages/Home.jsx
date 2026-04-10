@@ -8,7 +8,7 @@ import BestSellers from "../components/home/BestSellers";
 import GiftingBanner from "../components/home/GiftingBanner";
 import IGSection from "../components/home/IGSection";
 import Testimonials from "../components/home/Testimonials";
- 
+import Newsletter from "../components/home/Newsletter";
 
 export default function Home() {
   const { settings } = useOutletContext();
@@ -51,7 +51,7 @@ export default function Home() {
       <Testimonials />
 
       {/* 8. Newsletter signup */}
-       
+      <Newsletter />
 
       {/* 9. Full-bleed Instagram strip */}
       <IGSection igPosts={settings?.igPosts} igHandle={settings?.igHandle} />
