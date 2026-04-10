@@ -63,7 +63,12 @@ export default function Collections() {
   const collections = useMemo(() => {
     if (categories.length === 0) return fallbackCollections;
 
-    return categories.map((category, index) => {
+    return categories
+      .filter((cat) => {
+        const s = (typeof cat === 'string' ? cat : cat.slug || '').toLowerCase();
+        return s !== 'gift-sets';
+      })
+      .map((category, index) => {
       if (typeof category === 'string') {
         const slug = slugify(category);
         return {

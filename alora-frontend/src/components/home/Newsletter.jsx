@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, ArrowRight, CheckCircle } from 'lucide-react';
 import { api } from '../../utils/api';
 import toast from 'react-hot-toast';
@@ -8,6 +8,7 @@ export default function Newsletter() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
+  const [isUnsubscribe, setIsUnsubscribe] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,12 +16,18 @@ export default function Newsletter() {
 
     setLoading(true);
     try {
-      await api.subscribe(email.trim());
-      setSubscribed(true);
-      setEmail('');
-      toast.success('Subscribed successfully!');
+      if (isUnsubscribe) {
+        await api.unsubscribe(email.trim());
+        toast.success('Unsubscribed successfully.');
+        setEmail('');
+      } else {
+        await api.subscribe(email.trim());
+        setSubscribed(true);
+        setEmail('');
+        toast.success('Subscribed successfully!');
+      }
     } catch (err) {
-      toast.error(err.message || 'Failed to subscribe. Please try again.');
+      toast.error(err.message || `Failed to ${isUnsubscribe ? 'unsubscribe' : 'subscribe'}. Please try again.`);
     } finally {
       setLoading(false);
     }
@@ -70,20 +77,22 @@ export default function Newsletter() {
             Stay in Touch
           </p>
           <h2
-            className="font-display font-medium"
+            className="font-display font-medium transition-all"
             style={{ fontSize: '30px', color: '#fff', lineHeight: 1.2, marginBottom: '12px' }}
           >
-            Subscribe to Our Newsletter
+            {isUnsubscribe ? 'Unsubscribe from Newsletter' : 'Subscribe to Our Newsletter'}
           </h2>
           <p
-            className="font-body"
+            className="font-body transition-all"
             style={{ fontSize: '15px', color: '#999', lineHeight: 1.7, marginBottom: '32px' }}
           >
-            Be the first to know about new arrivals, exclusive offers, and styling tips delivered straight to your inbox.
+            {isUnsubscribe
+              ? 'We\'re sorry to see you go. Enter your email below to unsubscribe.'
+              : 'Be the first to know about new arrivals, exclusive offers, and styling tips delivered straight to your inbox.'}
           </p>
 
           {/* Form or Success */}
-          {subscribed ? (
+          {subscribed && !isUnsubscribe ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -124,35 +133,53 @@ export default function Newsletter() {
               <button
                 type="submit"
                 disabled={loading}
-                className="font-body uppercase flex items-center justify-center gap-2 transition-colors hover:opacity-90 disabled:opacity-60"
+                className="font-body flex items-center justify-center gap-2 transition-colors hover:opacity-90 disabled:opacity-60"
                 style={{
                   padding: '14px 28px',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  letterSpacing: '0.08em',
-                  color: '#1a1a1a',
-                  backgroundColor: '#c9a96e',
-                  border: 'none',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  letterSpacing: '0.05em',
+                  color: isUnsubscribe ? '#fff' : '#1a1a1a',
+                  backgroundColor: isUnsubscribe ? 'rgba(255,255,255,0.1)' : '#c9a96e',
+                  border: isUnsubscribe ? '1px solid rgba(255,255,255,0.2)' : 'none',
                   borderRadius: '2px',
                   cursor: loading ? 'not-allowed' : 'pointer',
                 }}
               >
-                {loading ? 'Subscribing...' : (
+                {loading ? (isUnsubscribe ? 'Unsubscribing...' : 'Subscribing...') : (
                   <>
-                    Subscribe
-                    <ArrowRight size={14} strokeWidth={2} />
+                    {isUnsubscribe ? 'Confirm Unsubscribe' : 'Subscribe'}
+                    {!isUnsubscribe && <ArrowRight size={16} strokeWidth={2} />}
                   </>
                 )}
               </button>
             </form>
           )}
 
-          <p
-            className="font-body"
-            style={{ fontSize: '12px', color: '#555', marginTop: '16px' }}
+          <div
+            className="font-body text-center"
+            style={{ fontSize: '12px', color: '#555', marginTop: '20px' }}
           >
-            No spam, unsubscribe anytime.
-          </p>
+            {isUnsubscribe ? (
+              <button onClick={() => setIsUnsubscribe(false)} className="hover:text-[#c9a96e] transition-colors underline object-bottom">
+                Wait, I want to stay subscribed
+              </button>
+            ) : (
+              <span>
+                No spam,{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSubscribed(false);
+                    setIsUnsubscribe(true);
+                  }}
+                  className="hover:text-[#c9a96e] transition-colors underline"
+                >
+                  unsubscribe anytime
+                </button>.
+              </span>
+            )}
+          </div>
         </motion.div>
       </div>
     </section>

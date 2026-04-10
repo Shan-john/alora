@@ -75,6 +75,10 @@ export const api = {
     method: 'POST',
     body: JSON.stringify({ email }),
   }),
+  unsubscribe: (email) => apiRequest('/api/newsletter/unsubscribe', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  }),
   submitEnquiry: (data) => apiRequest('/api/enquiries', {
     method: 'POST',
     body: JSON.stringify(data),

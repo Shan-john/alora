@@ -28,4 +28,31 @@ router.post('/subscribe', [
   }
 });
 
+// POST /api/newsletter/unsubscribe
+router.post('/unsubscribe', [
+  body('email').isEmail().withMessage('Valid email is required'),
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  try {
+    const { email } = req.body;
+    const { rowCount } = await pool.query(
+      'DELETE FROM subscribers WHERE email = $1',
+      [email]
+    );
+
+    if (rowCount === 0) {
+      return res.status(404).json({ error: 'Email not found in subscriber list' });
+    }
+
+    res.json({ message: 'Unsubscribed successfully' });
+  } catch (err) {
+    console.error('POST /newsletter/unsubscribe error:', err);
+    res.status(500).json({ error: 'Failed to unsubscribe' });
+  }
+});
+
 module.exports = router;
