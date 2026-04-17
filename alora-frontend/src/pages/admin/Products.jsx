@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, Check, ChevronDown, Download, FileUp, Pencil, Plus, RefreshCw, Save, Search, Trash2, Upload, X } from 'lucide-react';
+import { AlertTriangle, Check, ChevronDown, Download, FileUp, ImageIcon, Pencil, Plus, RefreshCw, Save, Search, Trash2, Upload, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { adminApi } from '../../utils/api';
 import { formatPrice } from '../../utils/format';
@@ -103,6 +103,8 @@ export default function Products() {
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(null); // slug of open menu
   const [deleteConfirm, setDeleteConfirm] = useState(null); // { slug, catName, productCount, products }
   const [reassignTo, setReassignTo] = useState('');
+  const [editingCategoryImage, setEditingCategoryImage] = useState(null); // { slug, imageUrl }
+  const [savingCategoryImage, setSavingCategoryImage] = useState(false);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState('');
@@ -342,6 +344,36 @@ export default function Products() {
       setSavingRename(false);
       setRenamingCategory(null);
       setRenameCategoryValue('');
+    }
+  };
+
+  const startEditCategoryImage = (cat) => {
+    setEditingCategoryImage({ slug: cat.slug, imageUrl: cat.image || '' });
+  };
+
+  const handleUpdateCategoryImage = async () => {
+    if (!editingCategoryImage) return;
+    const { slug, imageUrl } = editingCategoryImage;
+    const cat = categories.find((c) => c.slug === slug);
+    if (!cat) return;
+
+    setSavingCategoryImage(true);
+    try {
+      await adminApi.updateCategory(slug, {
+        name: cat.name,
+        image: imageUrl.trim(),
+        order: cat.order || 0,
+        isVisible: cat.isVisible ?? true,
+      });
+      const categoryData = await adminApi.getCategories().catch(() => ({ categories: [] }));
+      const updatedCategories = Array.isArray(categoryData?.categories) ? categoryData.categories : [];
+      setCategories(updatedCategories);
+      toast.success(`Category image updated`);
+    } catch (error) {
+      toast.error(error.message || 'Failed to update category image');
+    } finally {
+      setSavingCategoryImage(false);
+      setEditingCategoryImage(null);
     }
   };
 
@@ -599,52 +631,104 @@ export default function Products() {
             {/* Category list with rename / delete actions */}
             <div className="mt-3 space-y-1">
               <p className="text-xs uppercase tracking-wider text-stone-400 mb-1">Manage Categories</p>
-              <div className="max-h-48 overflow-y-auto border border-stone-100 rounded-lg divide-y divide-stone-50">
+              <div className="max-h-64 overflow-y-auto border border-stone-100 rounded-lg divide-y divide-stone-50">
                 {categories.map((cat) => (
-                  <div key={cat.slug} className="flex items-center justify-between px-3 py-2 hover:bg-stone-50 transition-colors group">
-                    {renamingCategory === cat.slug ? (
-                      <div className="flex items-center gap-2 flex-1">
-                        <input
-                          type="text"
-                          value={renameCategoryValue}
-                          onChange={(e) => setRenameCategoryValue(e.target.value)}
-                          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleRenameCategory(); } if (e.key === 'Escape') { setRenamingCategory(null); } }}
-                          className="flex-1 py-1 px-2 border border-gold/40 rounded text-sm focus:outline-none focus:border-gold bg-gold/5"
-                          autoFocus
-                        />
-                        <button type="button" onClick={handleRenameCategory} disabled={savingRename} className="p-1 text-green-600 hover:text-green-700 transition-colors" title="Save">
-                          {savingRename ? <RefreshCw size={14} className="animate-spin" /> : <Check size={14} />}
-                        </button>
-                        <button type="button" onClick={() => setRenamingCategory(null)} className="p-1 text-stone-400 hover:text-stone-600 transition-colors" title="Cancel">
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ) : (
-                      <>
-                        <span className={`text-sm ${form.category === cat.slug ? 'text-gold font-medium' : 'text-stone-700'}`}>
-                          {cat.name}
-                          <span className="text-xs text-stone-400 ml-1">({cat.slug})</span>
-                        </span>
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            type="button"
-                            onClick={() => startRenameCategory(cat.slug)}
-                            className="p-1 text-stone-400 hover:text-gold transition-colors"
-                            title="Rename category"
-                          >
-                            <Pencil size={13} />
+                  <div key={cat.slug} className="flex flex-col px-3 py-2 hover:bg-stone-50 transition-colors group">
+                    {/* Main row */}
+                    <div className="flex items-center justify-between">
+                      {renamingCategory === cat.slug ? (
+                        <div className="flex items-center gap-2 flex-1">
+                          <input
+                            type="text"
+                            value={renameCategoryValue}
+                            onChange={(e) => setRenameCategoryValue(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleRenameCategory(); } if (e.key === 'Escape') { setRenamingCategory(null); } }}
+                            className="flex-1 py-1 px-2 border border-gold/40 rounded text-sm focus:outline-none focus:border-gold bg-gold/5"
+                            autoFocus
+                          />
+                          <button type="button" onClick={handleRenameCategory} disabled={savingRename} className="p-1 text-green-600 hover:text-green-700 transition-colors" title="Save">
+                            {savingRename ? <RefreshCw size={14} className="animate-spin" /> : <Check size={14} />}
                           </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteCategory(cat.slug)}
-                            disabled={deletingCategory}
-                            className="p-1 text-stone-400 hover:text-red-500 transition-colors"
-                            title="Delete category"
-                          >
-                            <Trash2 size={13} />
+                          <button type="button" onClick={() => setRenamingCategory(null)} className="p-1 text-stone-400 hover:text-stone-600 transition-colors" title="Cancel">
+                            <X size={14} />
                           </button>
                         </div>
-                      </>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-2">
+                            {/* Thumbnail */}
+                            {cat.image ? (
+                              <img src={cat.image} alt={cat.name} className="w-8 h-8 rounded object-cover bg-stone-100 shrink-0" />
+                            ) : (
+                              <div className="w-8 h-8 rounded bg-stone-100 flex items-center justify-center shrink-0">
+                                <ImageIcon size={14} className="text-stone-400" />
+                              </div>
+                            )}
+                            <span className={`text-sm ${form.category === cat.slug ? 'text-gold font-medium' : 'text-stone-700'}`}>
+                              {cat.name}
+                              <span className="text-xs text-stone-400 ml-1">({cat.slug})</span>
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              type="button"
+                              onClick={() => startEditCategoryImage(cat)}
+                              className="p-1 text-stone-400 hover:text-blue-500 transition-colors"
+                              title="Edit category image"
+                            >
+                              <ImageIcon size={13} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => startRenameCategory(cat.slug)}
+                              className="p-1 text-stone-400 hover:text-gold transition-colors"
+                              title="Rename category"
+                            >
+                              <Pencil size={13} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteCategory(cat.slug)}
+                              disabled={deletingCategory}
+                              className="p-1 text-stone-400 hover:text-red-500 transition-colors"
+                              title="Delete category"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Inline image URL editor */}
+                    {editingCategoryImage?.slug === cat.slug && (
+                      <div className="mt-2 flex flex-col gap-2">
+                        {editingCategoryImage.imageUrl && (
+                          <img
+                            src={editingCategoryImage.imageUrl}
+                            alt="Preview"
+                            className="w-full h-24 object-cover rounded border border-stone-200"
+                            onError={(e) => { e.target.style.display = 'none'; }}
+                          />
+                        )}
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={editingCategoryImage.imageUrl}
+                            onChange={(e) => setEditingCategoryImage((prev) => ({ ...prev, imageUrl: e.target.value }))}
+                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleUpdateCategoryImage(); } if (e.key === 'Escape') { setEditingCategoryImage(null); } }}
+                            placeholder="Paste image URL here"
+                            className="flex-1 py-1 px-2 border border-blue-300 rounded text-sm focus:outline-none focus:border-blue-400 bg-blue-50/30"
+                            autoFocus
+                          />
+                          <button type="button" onClick={handleUpdateCategoryImage} disabled={savingCategoryImage} className="p-1 text-green-600 hover:text-green-700 transition-colors" title="Save image">
+                            {savingCategoryImage ? <RefreshCw size={14} className="animate-spin" /> : <Check size={14} />}
+                          </button>
+                          <button type="button" onClick={() => setEditingCategoryImage(null)} className="p-1 text-stone-400 hover:text-stone-600 transition-colors" title="Cancel">
+                            <X size={14} />
+                          </button>
+                        </div>
+                      </div>
                     )}
                   </div>
                 ))}
