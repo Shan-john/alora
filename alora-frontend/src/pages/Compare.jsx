@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { X, ArrowRight, ShoppingBag } from 'lucide-react';
 import { api } from '../utils/api';
 import { formatPrice } from '../utils/format';
+import { normalizeImageUrl } from '../utils/image';
 import { useWishlist } from '../context/WishlistContext';
 
 export default function Compare() {
@@ -92,7 +93,7 @@ export default function Compare() {
                     </button>
                     <div className="h-[160px] flex items-center justify-center mb-3 bg-[#f8f8f8]">
                       <img
-                        src={product.image}
+                        src={normalizeImageUrl(product.images && product.images.length > 0 ? product.images[0] : product.image)}
                         alt={product.name}
                         className="h-full w-full object-contain mix-blend-multiply p-3"
                       />
