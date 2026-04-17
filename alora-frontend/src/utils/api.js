@@ -177,7 +177,7 @@ export const adminApi = {
     auth: true,
   }),
   updateCategory: (id, data) => apiRequest(`/api/admin/categories/${id}`, {
-    method: 'PATCH',
+    method: 'PUT',
     body: JSON.stringify(data),
     auth: true,
   }),
