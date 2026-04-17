@@ -21,6 +21,7 @@ import NotFound from './pages/NotFound';
 import AdminLayout from './pages/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import Products from './pages/admin/Products';
+import Categories from './pages/admin/Categories';
 import Reviews from './pages/admin/Reviews';
 import Homepage from './pages/admin/Homepage';
 import AdminSettings from './pages/admin/Settings';
@@ -66,6 +67,7 @@ export default function App() {
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<Dashboard />} />
                 <Route path="products" element={<Products />} />
+                <Route path="categories" element={<Categories />} />
                 <Route path="reviews" element={<Reviews />} />
                 <Route path="homepage" element={<Homepage />} />
                 <Route path="settings" element={<AdminSettings />} />
