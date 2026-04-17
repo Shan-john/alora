@@ -8,7 +8,7 @@ import Spinner from '../../components/common/Spinner';
 const defaultHeroSlide = {
   lifestyleImage: '',
   productImage: '',
-  bgColor: '#B8973A',
+  bgColor: '#1A1A1A',
   headline: '',
   subheadline: '',
   ctaText: 'Shop Collection',
@@ -247,6 +247,7 @@ export default function AdminSettings() {
               <Field label="Subheadline" value={slide.subheadline || ''} onChange={(v) => updateArrayItem('heroSlides', index, { ...slide, subheadline: v })} />
               <Field label="Button Text" value={slide.ctaText || slide.cta1Text || ''} onChange={(v) => updateArrayItem('heroSlides', index, { ...slide, ctaText: v })} />
               <Field label="Button Link" value={slide.ctaLink || slide.cta1Link || '/shop'} onChange={(v) => updateArrayItem('heroSlides', index, { ...slide, ctaLink: v })} />
+              <Field label="Background Color" value={slide.bgColor || '#1A1A1A'} onChange={(v) => updateArrayItem('heroSlides', index, { ...slide, bgColor: v })} hint="Hex code like #1A1A1A" />
             </div>
           </div>
         ))}

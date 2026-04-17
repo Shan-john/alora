@@ -95,7 +95,7 @@ export default function Compare() {
                       <img
                         src={normalizeImageUrl(product.images && product.images.length > 0 ? product.images[0] : product.image)}
                         alt={product.name}
-                        className="h-full w-full object-contain mix-blend-multiply p-3"
+                        className="h-full w-full object-contain mix-blend-multiply p-3  "
                       />
                     </div>
                     <p className="font-body text-[13px] text-[#222] font-medium line-clamp-2 text-center">

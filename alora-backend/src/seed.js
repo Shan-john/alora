@@ -99,6 +99,7 @@ async function seed() {
       heroSlides: [
         {
           image: UNSPLASH_JEWELLERY[7],
+          bgColor: '#1A1A1A',
           headline: 'Elegance Redefined',
           subheadline: 'Discover our handcrafted collection of luxury jewellery',
           cta1Text: 'Shop Now', cta1Link: '/shop',
