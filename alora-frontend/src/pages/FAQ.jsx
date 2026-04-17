@@ -10,19 +10,19 @@ const faqs = [
     items: [
       {
         q: 'How do I place an order?',
-        a: 'Simply browse our collection, add items to your wishlist, and click "Buy Confirmed" to send us your order via WhatsApp. One of our team members will confirm availability and provide payment details within a few hours.',
+        a: 'Browse our collection, select your favorite pieces, add them to cart, and proceed to checkout. Complete the payment to confirm your order.',
       },
       {
         q: 'How long does delivery take?',
-        a: 'Orders are typically processed within 1–2 business days. Delivery within Kerala takes 2–4 business days, while orders to other states in India take 4–7 business days.',
+        a: 'Orders are dispatched within 2–4 working days and usually delivered within 4–8 business days, depending on your location.',
       },
       {
         q: 'Do you offer free shipping?',
-        a: 'Yes! We offer free standard shipping on all orders above ₹999. Orders below that amount have a flat shipping fee of ₹79.',
+        a: 'Shipping offers may vary based on promotions, order value, or location. Final shipping charges will be shown at checkout.',
       },
       {
         q: 'Can I track my order?',
-        a: 'Yes. Once your order is shipped, we will send you a tracking number via WhatsApp so you can monitor your delivery in real time.',
+        a: 'Yes. Once your order is shipped, tracking details will be shared with you.',
       },
     ],
   },
@@ -31,15 +31,15 @@ const faqs = [
     items: [
       {
         q: 'What materials are your jewellery made from?',
-        a: 'All our jewellery is crafted from premium, hypoallergenic materials including 925 sterling silver, 18K gold-plated brass, and stainless steel. Each piece is tarnish-resistant and skin-safe for everyday wear.',
+        a: 'Our jewellery is crafted using carefully selected quality materials, designed for style and elegance. Material details are mentioned on each product page.',
       },
       {
         q: 'How do I care for my jewellery?',
-        a: 'To maintain the beauty of your piece, avoid contact with water, perfume, and harsh chemicals. Store in the provided pouch when not in use. Gently clean with a soft, dry cloth after wearing.',
+        a: 'Keep jewellery away from water, perfumes, and chemicals. Store in a dry place and wipe gently after use.',
       },
       {
         q: 'Are your products authentic?',
-        a: 'Absolutely. Every piece you receive from Alora by Trio is exactly as shown in our catalogue. We personally quality-check each item before dispatch.',
+        a: 'Yes. We carefully curate every product to ensure quality and customer satisfaction.',
       },
     ],
   },
@@ -48,15 +48,15 @@ const faqs = [
     items: [
       {
         q: 'What is your return policy?',
-        a: 'We offer a 7-day return window from the date of delivery. Items must be unused, in their original packaging, and in the same condition as received. Contact us on WhatsApp to initiate a return.',
+        a: 'We do not accept returns unless the product is defective, damaged, or incorrect.',
       },
       {
         q: 'How long does a refund take?',
-        a: 'Once we receive and inspect the returned item, refunds are processed within 3–5 business days to your original payment method.',
+        a: 'Once approved, refunds are usually processed within 5–7 business days depending on your payment provider.',
       },
       {
         q: 'What items cannot be returned?',
-        a: 'Customised or personalised pieces, items marked as "Final Sale", and products that show signs of use or damage cannot be returned.',
+        a: 'Used products, items without original packaging, and products without an unboxing video (for damage claims) cannot be returned.',
       },
     ],
   },
@@ -65,11 +65,11 @@ const faqs = [
     items: [
       {
         q: 'What payment methods do you accept?',
-        a: 'We accept UPI (PhonePe, GPay, Paytm), bank transfers, and cash on delivery for select locations. Payment details are shared after order confirmation on WhatsApp.',
+        a: 'We accept secure online payment methods available at checkout such as UPI, cards, net banking, and other supported options.',
       },
       {
         q: 'Is it safe to pay online?',
-        a: 'Yes. All UPI and bank transfer transactions are secured by your bank\'s encryption standards. We never store your payment information.',
+        a: 'Yes. All payments are processed through secure and trusted payment gateways.',
       },
     ],
   },
