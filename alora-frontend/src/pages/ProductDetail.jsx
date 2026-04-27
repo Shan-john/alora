@@ -641,10 +641,10 @@ export default function ProductDetail() {
                         onClick={() =>
                           setReviewForm((prev) => ({
                             ...prev,
-                            rating: starValue,
+                            rating: prev.rating === starValue ? 0 : starValue,
                           }))
                         }
-                        className="p-1"
+                        className="p-0.5 hover:scale-110 transition-transform cursor-pointer"
                         aria-label={`Rate ${starValue} star${starValue > 1 ? "s" : ""}`}
                       >
                         <Star
