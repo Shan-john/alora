@@ -20,7 +20,9 @@ export function generateOrderMessage(items, total, orderId, customer = {}) {
 ${customer.phone ? `• Phone: ${customer.phone}` : ''}
 ${customer.additionalPhone ? `• Alt Phone: ${customer.additionalPhone}` : ''}` : '';
 
-  return `Hi Alora by Trio! 👋 I'd like to place an order:\n\n${itemLines}\n\nTotal: ₹${total.toLocaleString("en-IN")}${customerDetails}\n\nOrder Ref: ${orderId}\n\nPlease confirm! 🛍`;
+  const trackingUrl = `${window.location.origin}/track?id=${orderId}`;
+
+  return `Hi Alora by Trio! 👋 I'd like to place an order:\n\n${itemLines}\n\nTotal: ₹${total.toLocaleString("en-IN")}${customerDetails}\n\n*Track Order:* ${trackingUrl}\n\nPlease confirm! 🛍`;
 }
 
 /**
@@ -80,7 +82,8 @@ export async function openInstagramDM(messageText, igHandle = "alorabytrio") {
 /**
  * Open WhatsApp with pre-filled message.
  */
-export function openWhatsApp(messageText, phoneNumber = "9191884 57331") {
-  const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(messageText)}`;
-  window.open(url, "_blank");
+export function openWhatsApp(messageText, phoneNumber = "919188457331") {
+  const cleanNumber = phoneNumber.replace(/\s/g, '');
+  const url = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(messageText)}`;
+  window.location.href = url;
 }

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Search, Package, Truck, CheckCircle } from 'lucide-react';
@@ -18,25 +19,37 @@ const statusColors = {
 };
 
 export default function Track() {
-  const [orderId, setOrderId] = useState('');
+  const [searchParams] = useSearchParams();
+  const [orderId, setOrderId] = useState(searchParams.get('id') || '');
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleTrack = async (e) => {
-    e.preventDefault();
-    if (!orderId.trim()) return;
+  const fetchOrder = async (id) => {
+    if (!id.trim()) return;
     setLoading(true);
     setError('');
     setOrder(null);
     try {
-      const data = await api.trackOrder(orderId.trim());
+      const data = await api.trackOrder(id.trim());
       setOrder(data);
     } catch {
       setError('Order not found. Please check your Order ID.');
     } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    const idParam = searchParams.get('id');
+    if (idParam) {
+      fetchOrder(idParam);
+    }
+  }, [searchParams]);
+
+  const handleTrack = (e) => {
+    e.preventDefault();
+    fetchOrder(orderId);
   };
 
   return (

@@ -40,17 +40,20 @@ router.post('/preview', [
       customerId = newCustomer[0].id;
     }
 
+    // Combine address info into notes for now since schema doesn't have dedicated columns
+    const shippingNotes = `Address: ${customer.address}\nPostcode: ${customer.postcode}\nAlt Phone: ${customer.additionalPhone || 'N/A'}`;
+
     // 2. Create Order
     await client.query(
       'INSERT INTO orders (id, customer_id, customer_name, customer_email, customer_phone, total, status, order_method, ig_message_text, notes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
-      [orderId, customerId, customer.name, customer.email, customer.phone || '', total, 'pending', orderMethod, igMessageText || '', '']
+      [orderId, customerId, customer.name, customer.email, customer.phone || '', total, 'pending', orderMethod, igMessageText || '', shippingNotes]
     );
 
     // 3. Create Order Items
     for (const item of items) {
       await client.query(
         'INSERT INTO order_items (order_id, product_id, product_name, variant_details, price, quantity) VALUES ($1, $2, $3, $4, $5, $6)',
-        [orderId, item.id, item.name, item.variant || null, item.price, item.quantity]
+        [orderId, item.productId || item.id, item.name, item.variant || null, item.price, item.quantity]
       );
     }
 
