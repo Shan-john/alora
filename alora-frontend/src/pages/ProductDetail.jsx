@@ -32,7 +32,7 @@ import toast from "react-hot-toast";
 export default function ProductDetail() {
   const { id } = useParams();
   const { settings = {} } = useOutletContext() || {};
-  const { addItem } = useCart();
+  const { addItem, clearCart } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -442,20 +442,18 @@ export default function ProductDetail() {
                   </button>
                 </div>
 
-                <a
-                  href={`https://wa.me/${whatsappNumber}?text=${
-                    isGiftOrder
-                      ? encodeURIComponent(getGiftOrderMessage())
-                      : encodeURIComponent(getEnquiryMessage())
-                  }`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-[65%] h-full bg-[#111] !text-white font-body text-[11px] sm:text-[12px] font-bold tracking-[0.05em] uppercase flex items-center justify-center hover:bg-black transition-colors text-center leading-tight whitespace-break-spaces px-2"
+                <button
+                  onClick={() => {
+                    clearCart();
+                    handleAddToCart();
+                    window.location.href = "/checkout?method=whatsapp";
+                  }}
+                  className="w-[65%] h-full bg-[#111] text-white! font-body text-[11px] sm:text-[12px] font-bold tracking-[0.05em] uppercase flex items-center justify-center hover:bg-black transition-colors text-center leading-tight whitespace-break-spaces px-2"
                 >
                   {isGiftOrder
                     ? "SEND GIFT ORDER ON WHATSAPP"
-                    : "BUY CONFIRMED"}
-                </a>
+                    : "BUY NOW"}
+                </button>
               </div>
 
               {/* Action Links */}
@@ -681,7 +679,7 @@ export default function ProductDetail() {
                 <button
                   type="submit"
                   disabled={submittingReview}
-                  className="py-3 px-6 bg-charcoal text-white text-[12px] font-bold tracking-[0.1em] uppercase hover:bg-black transition-colors disabled:opacity-60"
+                  className="py-3 px-6 bg-charcoal text-white text-[12px] font-bold tracking-widest uppercase hover:bg-black transition-colors disabled:opacity-60"
                 >
                   {submittingReview ? "Submitting..." : "Submit Review"}
                 </button>

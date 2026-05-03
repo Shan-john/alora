@@ -13,29 +13,41 @@ export default function CheckoutModal({ isOpen, onClose, defaultMethod = 'instag
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [postcode, setPostcode] = useState('');
+  const [additionalPhone, setAdditionalPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [orderId, setOrderId] = useState(null);
   const [copied, setCopied] = useState(false);
 
   const handleCheckout = async (method) => {
-    if (!name.trim() || !email.trim()) {
-      toast.error('Name and email are required');
+    if (!name.trim() || !email.trim() || !address.trim() || !postcode.trim()) {
+      toast.error('Please fill in all required fields (Name, Email, Address, Postcode)');
       return;
     }
 
     setLoading(true);
     try {
-      const tempMessage = generateOrderMessage(items, totalPrice, 'PENDING');
+      const customer = { 
+        name: name.trim(), 
+        email: email.trim(), 
+        phone: phone.trim(),
+        address: address.trim(),
+        postcode: postcode.trim(),
+        additionalPhone: additionalPhone.trim()
+      };
+
+      const tempMessage = generateOrderMessage(items, totalPrice, 'PENDING', customer);
 
       const data = await createPendingOrder(
         items,
-        { name: name.trim(), email: email.trim(), phone: phone.trim() },
+        customer,
         totalPrice,
         method,
         tempMessage
       );
 
-      const finalMessage = generateOrderMessage(items, totalPrice, data.orderId);
+      const finalMessage = generateOrderMessage(items, totalPrice, data.orderId, customer);
       setOrderId(data.orderId);
 
       if (method === 'instagram') {
@@ -120,41 +132,70 @@ export default function CheckoutModal({ isOpen, onClose, defaultMethod = 'instag
                   </div>
                 </div>
 
-                {/* Customer Info */}
-                <div className="space-y-3 mb-6">
+                <div className="space-y-4 mb-6">
                   <div>
-                    <label className="text-xs tracking-wider uppercase font-body text-stone-500 mb-1 block">Name *</label>
+                    <label className="text-xs tracking-wider uppercase font-body text-stone-500 mb-1 block">Full Name *</label>
                     <input
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Your full name"
-                      className="w-full py-2.5 px-4 border border-stone-200 rounded-lg text-sm focus:outline-none focus:border-gold transition-colors"
+                      className="w-full py-2.5 px-4 border border-stone-200 rounded-lg text-sm focus:outline-none focus:border-gold transition-colors bg-white"
                       required
-                      id="checkout-name"
                     />
                   </div>
                   <div>
-                    <label className="text-xs tracking-wider uppercase font-body text-stone-500 mb-1 block">Email *</label>
+                    <label className="text-xs tracking-wider uppercase font-body text-stone-500 mb-1 block">Email ID *</label>
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="your@email.com"
-                      className="w-full py-2.5 px-4 border border-stone-200 rounded-lg text-sm focus:outline-none focus:border-gold transition-colors"
+                      className="w-full py-2.5 px-4 border border-stone-200 rounded-lg text-sm focus:outline-none focus:border-gold transition-colors bg-white"
                       required
-                      id="checkout-email"
                     />
                   </div>
                   <div>
-                    <label className="text-xs tracking-wider uppercase font-body text-stone-500 mb-1 block">Phone (optional)</label>
+                    <label className="text-xs tracking-wider uppercase font-body text-stone-500 mb-1 block">Full Address *</label>
+                    <textarea
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="House No, Street, City, State"
+                      className="w-full py-2.5 px-4 border border-stone-200 rounded-lg text-sm focus:outline-none focus:border-gold transition-colors bg-white min-h-[80px]"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs tracking-wider uppercase font-body text-stone-500 mb-1 block">Postcode *</label>
+                      <input
+                        type="text"
+                        value={postcode}
+                        onChange={(e) => setPostcode(e.target.value)}
+                        placeholder="600001"
+                        className="w-full py-2.5 px-4 border border-stone-200 rounded-lg text-sm focus:outline-none focus:border-gold transition-colors bg-white"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs tracking-wider uppercase font-body text-stone-500 mb-1 block">Phone Number</label>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+91 98765 43210"
+                        className="w-full py-2.5 px-4 border border-stone-200 rounded-lg text-sm focus:outline-none focus:border-gold transition-colors bg-white"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs tracking-wider uppercase font-body text-stone-500 mb-1 block">Additional Phone Number</label>
                     <input
                       type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+91 98765 43210"
-                      className="w-full py-2.5 px-4 border border-stone-200 rounded-lg text-sm focus:outline-none focus:border-gold transition-colors"
-                      id="checkout-phone"
+                      value={additionalPhone}
+                      onChange={(e) => setAdditionalPhone(e.target.value)}
+                      placeholder="Secondary contact number"
+                      className="w-full py-2.5 px-4 border border-stone-200 rounded-lg text-sm focus:outline-none focus:border-gold transition-colors bg-white"
                     />
                   </div>
                 </div>

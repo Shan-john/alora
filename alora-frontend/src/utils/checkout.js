@@ -3,7 +3,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 /**
  * Generate order message text for DM/WhatsApp.
  */
-export function generateOrderMessage(items, total, orderId) {
+export function generateOrderMessage(items, total, orderId, customer = {}) {
   const itemLines = items
     .map((item) => {
       const variant = item.variant ? ` (${item.variant})` : "";
@@ -11,7 +11,16 @@ export function generateOrderMessage(items, total, orderId) {
     })
     .join("\n");
 
-  return `Hi Alora by Trio! 👋 I'd like to place an order:\n\n${itemLines}\n\nTotal: ₹${total.toLocaleString("en-IN")}\nOrder Ref: ${orderId}\n\nPlease confirm! 🛍`;
+  const customerDetails = customer.name ? `
+\n*Customer Details:*
+• Name: ${customer.name}
+• Email: ${customer.email}
+• Address: ${customer.address}
+• Postcode: ${customer.postcode}
+${customer.phone ? `• Phone: ${customer.phone}` : ''}
+${customer.additionalPhone ? `• Alt Phone: ${customer.additionalPhone}` : ''}` : '';
+
+  return `Hi Alora by Trio! 👋 I'd like to place an order:\n\n${itemLines}\n\nTotal: ₹${total.toLocaleString("en-IN")}${customerDetails}\n\nOrder Ref: ${orderId}\n\nPlease confirm! 🛍`;
 }
 
 /**
