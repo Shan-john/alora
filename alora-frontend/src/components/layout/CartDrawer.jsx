@@ -116,23 +116,35 @@ export default function CartDrawer() {
                 <Link
                   to="/checkout"
                   onClick={() => setIsCartOpen(false)}
-                  className="w-full block"
+                  className="w-full block mb-3"
                 >
-                  <Button variant="solid" className="w-full mb-2" size="md">
-                    <Instagram size={16} className="mr-2" />
-                    Buy via Instagram DM
+                  <Button variant="solid" className="w-full py-4 text-sm uppercase tracking-widest font-bold" size="md">
+                    Proceed to Checkout
                   </Button>
                 </Link>
-                <Link
-                  to="/checkout?method=whatsapp"
-                  onClick={() => setIsCartOpen(false)}
-                  className="w-full block"
-                >
-                  <Button variant="outline" className="w-full" size="md">
-                    <MessageCircle size={16} className="mr-2" />
-                    Order on WhatsApp
-                  </Button>
-                </Link>
+
+                <div className="flex gap-2">
+                  <Link
+                    to="/checkout"
+                    onClick={() => setIsCartOpen(false)}
+                    className="flex-1"
+                  >
+                    <Button variant="outline" className="w-full text-[10px] px-1" size="sm">
+                      <Instagram size={14} className="mr-1" />
+                      Instagram DM
+                    </Button>
+                  </Link>
+                  <Link
+                    to="/checkout?method=whatsapp"
+                    onClick={() => setIsCartOpen(false)}
+                    className="flex-1"
+                  >
+                    <Button variant="outline" className="w-full text-[10px] px-1" size="sm">
+                      <MessageCircle size={14} className="mr-1" />
+                      WhatsApp
+                    </Button>
+                  </Link>
+                </div>
               </div>
             )}
           </motion.div>

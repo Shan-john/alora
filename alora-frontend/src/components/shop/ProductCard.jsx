@@ -12,7 +12,6 @@ import { api } from '../../utils/api';
 export default function ProductCard({ product }) {
   const { addItem } = useCart();
   const [isHovered, setIsHovered] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
 
   const hasDiscount = product.salePrice && product.salePrice < product.price;
   const discount = hasDiscount ? discountPercent(product.price, product.salePrice) : 0;
@@ -23,19 +22,7 @@ export default function ProductCard({ product }) {
     addItem(product);
   };
 
-  const handleWishlist = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsWishlisted(!isWishlisted);
-    try {
-      const wl = JSON.parse(localStorage.getItem('alora_wishlist') || '[]');
-      if (isWishlisted) {
-        localStorage.setItem('alora_wishlist', JSON.stringify(wl.filter(id => id !== product.id)));
-      } else {
-        localStorage.setItem('alora_wishlist', JSON.stringify([...wl, product.id]));
-      }
-    } catch {}
-  };
+
 
   const primaryImage = normalizeImageUrl(product.images?.[0]);
   const secondaryImage = normalizeImageUrl(product.images?.[1]);

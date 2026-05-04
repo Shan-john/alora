@@ -10,7 +10,6 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useCart } from "../../context/CartContext";
-import { useWishlist } from "../../context/WishlistContext";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
@@ -26,7 +25,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { totalWishlistItems } = useWishlist();
+  const { totalItems, setIsCartOpen } = useCart();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -128,17 +127,20 @@ export default function Navbar() {
               </button>
 
               {/* Cart / Wishlist Bag */}
-              <Link
-                to="/wishlist"
+
+
+              {/* Cart Bag */}
+              <button
+                onClick={() => setIsCartOpen(true)}
                 className="relative text-charcoal hover:text-black transition-colors"
               >
                 <ShoppingBag size={20} strokeWidth={1.5} />
-                {totalWishlistItems > 0 && (
+                {totalItems > 0 && (
                   <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-charcoal text-white text-[9px] font-body font-medium rounded-full flex items-center justify-center">
-                    {totalWishlistItems}
+                    {totalItems}
                   </span>
                 )}
-              </Link>
+              </button>
 
               {/* Mobile menu */}
               <button
@@ -238,16 +240,7 @@ export default function Navbar() {
                   </Link>
                 ))}
               </nav>
-              <div className="p-5 pt-2 flex items-center gap-4">
-                <Link
-                  to="/wishlist"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2 text-[14px] text-[#777] font-body"
-                >
-                  <Heart size={18} strokeWidth={1.5} /> Wishlist
-                </Link>
-                 
-              </div>
+
             </motion.div>
           </>
         )}

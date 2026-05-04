@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import CartDrawer from './CartDrawer';
 import { api } from '../../utils/api';
 
 export default function Layout() {
@@ -20,6 +21,7 @@ export default function Layout() {
   return (
     <div className="page-shell">
       <Navbar />
+      <CartDrawer />
       <motion.main
         key={location.pathname}
         initial={{ opacity: 0 }}
