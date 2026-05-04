@@ -1,40 +1,58 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Minus, Plus, ShoppingBag, MessageCircle } from 'lucide-react';
-import { InstagramIcon as Instagram } from '../common/Icons';
-import { useCart } from '../../context/CartContext';
-import { formatPrice } from '../../utils/format';
-import { Link } from 'react-router-dom';
-import Button from '../common/Button';
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Minus, Plus, ShoppingBag, MessageCircle } from "lucide-react";
+import { InstagramIcon as Instagram } from "../common/Icons";
+import { useCart } from "../../context/CartContext";
+import { useWishlist } from "../../context/WishlistContext";
+import { formatPrice } from "../../utils/format";
+import { Link } from "react-router-dom";
+import Button from "../common/Button";
 
 export default function CartDrawer() {
-  const { items, isCartOpen, setIsCartOpen, updateQuantity, removeItem, totalPrice, totalItems } = useCart();
+  const { items: wishlistItems, toggleWishlist } = useWishlist();
+  const {
+    items,
+    isCartOpen,
+    setIsCartOpen,
+    updateQuantity,
+    removeItem,
+    totalPrice,
+    totalItems,
+    addItem,
+  } = useCart();
 
   return (
     <AnimatePresence>
       {isCartOpen && (
-        <>
+        <div className="fixed inset-0 z-[100]">
           <motion.div
+            key="cart-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-50"
+            className="absolute inset-0 bg-black/50"
             onClick={() => setIsCartOpen(false)}
           />
           <motion.div
-            initial={{ x: '100%' }}
+            key="cart-drawer"
+            initial={{ x: "100%" }}
             animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-ivory z-50 shadow-2xl flex flex-col"
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="absolute top-0 right-0 h-full w-full sm:w-[420px] bg-ivory shadow-2xl flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
               <div className="flex items-center gap-2">
                 <ShoppingBag size={20} className="text-charcoal" />
-                <h2 className="font-display text-xl font-semibold text-charcoal">Your Bag</h2>
+                <h2 className="font-display text-xl font-semibold text-charcoal">
+                  Your Bag
+                </h2>
                 <span className="text-sm text-stone-500">({totalItems})</span>
               </div>
-              <button onClick={() => setIsCartOpen(false)} className="p-2 hover:text-gold transition-colors">
+              <button
+                onClick={() => setIsCartOpen(false)}
+                className="p-2 hover:text-gold transition-colors"
+              >
                 <X size={20} />
               </button>
             </div>
@@ -44,10 +62,20 @@ export default function CartDrawer() {
               {items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center">
                   <ShoppingBag size={48} className="text-stone-300 mb-4" />
-                  <h3 className="font-display text-xl text-charcoal mb-2">Your bag is empty</h3>
-                  <p className="text-stone-500 text-sm mb-6">Discover our latest collection</p>
-                  <Button onClick={() => setIsCartOpen(false)} variant="solid" size="sm">
-                    <Link to="/shop" className="text-inherit no-underline">Continue Shopping</Link>
+                  <h3 className="font-display text-xl text-charcoal mb-2">
+                    Your bag is empty
+                  </h3>
+                  <p className="text-stone-500 text-sm mb-6">
+                    Discover our latest collection
+                  </p>
+                  <Button
+                    onClick={() => setIsCartOpen(false)}
+                    variant="solid"
+                    size="sm"
+                  >
+                    <Link to="/shop" className="text-inherit no-underline">
+                      Continue Shopping
+                    </Link>
                   </Button>
                 </div>
               ) : (
@@ -67,9 +95,13 @@ export default function CartDrawer() {
                         className="w-20 h-20 object-cover rounded-md"
                       />
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-body text-sm font-medium text-charcoal truncate">{item.name}</h4>
+                        <h4 className="font-body text-sm font-medium text-charcoal truncate">
+                          {item.name}
+                        </h4>
                         {item.variant && (
-                          <p className="text-xs text-stone-500 mt-0.5">{item.variant}</p>
+                          <p className="text-xs text-stone-500 mt-0.5">
+                            {item.variant}
+                          </p>
                         )}
                         <p className="font-body text-sm font-semibold text-charcoal mt-1">
                           {formatPrice(item.price)}
@@ -77,21 +109,37 @@ export default function CartDrawer() {
                         <div className="flex items-center justify-between mt-2">
                           <div className="flex items-center border border-stone-200 rounded">
                             <button
-                              onClick={() => updateQuantity(item.productId, item.variant, item.quantity - 1)}
+                              onClick={() =>
+                                updateQuantity(
+                                  item.productId,
+                                  item.variant,
+                                  item.quantity - 1,
+                                )
+                              }
                               className="p-1.5 hover:text-gold transition-colors"
                             >
                               <Minus size={12} />
                             </button>
-                            <span className="px-3 text-xs font-medium">{item.quantity}</span>
+                            <span className="px-3 text-xs font-medium">
+                              {item.quantity}
+                            </span>
                             <button
-                              onClick={() => updateQuantity(item.productId, item.variant, item.quantity + 1)}
+                              onClick={() =>
+                                updateQuantity(
+                                  item.productId,
+                                  item.variant,
+                                  item.quantity + 1,
+                                )
+                              }
                               className="p-1.5 hover:text-gold transition-colors"
                             >
                               <Plus size={12} />
                             </button>
                           </div>
                           <button
-                            onClick={() => removeItem(item.productId, item.variant)}
+                            onClick={() =>
+                              removeItem(item.productId, item.variant)
+                            }
                             className="text-stone-400 hover:text-red-500 transition-colors"
                           >
                             <X size={14} />
@@ -102,13 +150,68 @@ export default function CartDrawer() {
                   ))}
                 </div>
               )}
+
+              {/* Wishlist Section */}
+              {wishlistItems.length > 0 && (
+                <div className="mt-12">
+                  <div className="flex items-center gap-2 mb-6 border-b border-stone-100 pb-2">
+                    <h3 className="font-display text-lg font-semibold text-charcoal">
+                      Your Wishlist
+                    </h3>
+                    <span className="text-xs text-stone-400">
+                      ({wishlistItems.length})
+                    </span>
+                  </div>
+                  <div className="space-y-4">
+                    {wishlistItems.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex gap-4 bg-white border border-stone-100 rounded-lg p-3 group"
+                      >
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-16 h-16 object-cover rounded-md"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-body text-xs font-medium text-charcoal truncate">
+                            {item.name}
+                          </h4>
+                          <p className="font-body text-xs font-semibold text-charcoal mt-1">
+                            {formatPrice(item.price)}
+                          </p>
+                          <div className="flex items-center justify-between mt-2">
+                            <button
+                              onClick={() => {
+                                addItem(item);
+                                toggleWishlist(item);
+                              }}
+                              className="text-[10px] font-bold uppercase tracking-wider text-gold hover:text-charcoal transition-colors"
+                            >
+                              Move to Bag
+                            </button>
+                            <button
+                              onClick={() => toggleWishlist(item)}
+                              className="text-stone-300 hover:text-red-500 transition-colors"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Footer with checkout CTAs */}
             {items.length > 0 && (
               <div className="border-t border-stone-200 px-6 py-4 bg-warm">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-stone-600 uppercase tracking-wider">Subtotal</span>
+                  <span className="text-sm text-stone-600 uppercase tracking-wider">
+                    Subtotal
+                  </span>
                   <span className="font-display text-xl font-semibold text-charcoal">
                     {formatPrice(totalPrice)}
                   </span>
@@ -116,39 +219,27 @@ export default function CartDrawer() {
                 <Link
                   to="/checkout"
                   onClick={() => setIsCartOpen(false)}
-                  className="w-full block mb-3"
+                  className="w-full block"
                 >
-                  <Button variant="solid" className="w-full py-4 text-sm uppercase tracking-widest font-bold" size="md">
-                    Proceed to Checkout
+                  <Button variant="solid" className="w-full mb-2" size="md">
+                    <Instagram size={16} className="mr-2" />
+                    Buy via Instagram DM
                   </Button>
                 </Link>
-
-                <div className="flex gap-2">
-                  <Link
-                    to="/checkout"
-                    onClick={() => setIsCartOpen(false)}
-                    className="flex-1"
-                  >
-                    <Button variant="outline" className="w-full text-[10px] px-1" size="sm">
-                      <Instagram size={14} className="mr-1" />
-                      Instagram DM
-                    </Button>
-                  </Link>
-                  <Link
-                    to="/checkout?method=whatsapp"
-                    onClick={() => setIsCartOpen(false)}
-                    className="flex-1"
-                  >
-                    <Button variant="outline" className="w-full text-[10px] px-1" size="sm">
-                      <MessageCircle size={14} className="mr-1" />
-                      WhatsApp
-                    </Button>
-                  </Link>
-                </div>
+                <Link
+                  to="/checkout?method=whatsapp"
+                  onClick={() => setIsCartOpen(false)}
+                  className="w-full block"
+                >
+                  <Button variant="outline" className="w-full" size="md">
+                    <MessageCircle size={16} className="mr-2" />
+                    Order on WhatsApp
+                  </Button>
+                </Link>
               </div>
             )}
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   );

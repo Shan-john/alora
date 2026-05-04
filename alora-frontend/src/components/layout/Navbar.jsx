@@ -10,6 +10,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useCart } from "../../context/CartContext";
+import { useWishlist } from "../../context/WishlistContext";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
@@ -25,6 +26,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const { totalWishlistItems } = useWishlist();
   const { totalItems, setIsCartOpen } = useCart();
   const navigate = useNavigate();
 
@@ -127,17 +129,15 @@ export default function Navbar() {
               </button>
 
               {/* Cart / Wishlist Bag */}
-
-
               {/* Cart Bag */}
               <button
                 onClick={() => setIsCartOpen(true)}
-                className="relative text-charcoal hover:text-black transition-colors"
+                className="relative text-charcoal hover:text-black transition-colors cursor-pointer"
               >
                 <ShoppingBag size={20} strokeWidth={1.5} />
-                {totalItems > 0 && (
+                {(totalItems > 0 || totalWishlistItems > 0) && (
                   <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-charcoal text-white text-[9px] font-body font-medium rounded-full flex items-center justify-center">
-                    {totalItems}
+                    {totalItems + totalWishlistItems}
                   </span>
                 )}
               </button>
@@ -240,7 +240,9 @@ export default function Navbar() {
                   </Link>
                 ))}
               </nav>
-
+              <div className="p-5 pt-2 flex items-center gap-4">
+                 
+              </div>
             </motion.div>
           </>
         )}

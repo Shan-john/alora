@@ -19,6 +19,7 @@ import {
 import { InstagramIcon as Instagram } from "../components/common/Icons";
 import { api } from "../utils/api";
 import { useCart } from "../context/CartContext";
+import { useWishlist } from "../context/WishlistContext";
 import { formatPrice, discountPercent } from "../utils/format";
 import { normalizeImageUrl } from "../utils/image";
 import StarRating from "../components/common/StarRating";
@@ -54,12 +55,21 @@ export default function ProductDetail() {
   const [isZoomed, setIsZoomed] = useState(false);
   const trackedProductRef = useRef(null);
 
-
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  const isWishlisted = product ? isInWishlist(product.id) : false;
   const whatsappNumber = String(
     settings?.whatsappNumber || "9191884 57331",
   ).replace(/\D/g, "");
 
-
+  const handleWishlistAdd = () => {
+    if (!product) return;
+    toggleWishlist(product);
+    if (!isWishlisted) {
+      toast.success("Added to your wishlist!");
+    } else {
+      toast("Removed from your wishlist.", { icon: "ℹ️" });
+    }
+  };
 
   const handleMouseMove = (e) => {
     const { left, top, width, height } =
@@ -448,7 +458,19 @@ export default function ProductDetail() {
 
               {/* Action Links */}
               <div className="space-y-4 mb-10 font-body text-[13px] text-[#666]">
-
+                <button
+                  onClick={handleWishlistAdd}
+                  className="flex items-center gap-2 hover:text-black transition-colors"
+                >
+                  <Heart
+                    size={16}
+                    strokeWidth={1.5}
+                    className={
+                      isWishlisted ? "text-red-500 fill-red-500" : "text-[#333]"
+                    }
+                  />{" "}
+                  {isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                </button>
                 <div className="flex items-center justify-start">
                   <a
                     href={buildWhatsAppLink(

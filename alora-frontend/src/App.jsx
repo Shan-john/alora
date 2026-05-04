@@ -3,13 +3,14 @@ import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { WishlistProvider } from './context/WishlistContext';
 import Layout from './components/layout/Layout';
 import Home from './pages/Home';
 import Shop from './pages/Shop';
 import Collections from './pages/Collections';
 import CollectionItems from './pages/CollectionItems';
 import ProductDetail from './pages/ProductDetail';
-
+import Wishlist from './pages/Wishlist';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Track from './pages/Track';
@@ -30,7 +31,8 @@ export default function App() {
     <HelmetProvider>
       <AuthProvider>
         <CartProvider>
-          <BrowserRouter>
+          <WishlistProvider>
+            <BrowserRouter>
               <Toaster
               position="top-center"
               toastOptions={{
@@ -50,7 +52,7 @@ export default function App() {
                 <Route path="/collections" element={<Collections />} />
                 <Route path="/collections/:slug" element={<CollectionItems />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
-
+                <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/faq" element={<FAQ />} />
@@ -72,6 +74,7 @@ export default function App() {
               </Route>
             </Routes>
             </BrowserRouter>
+          </WishlistProvider>
         </CartProvider>
       </AuthProvider>
     </HelmetProvider>

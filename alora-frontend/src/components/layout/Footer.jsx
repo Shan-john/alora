@@ -72,6 +72,7 @@ export default function Footer({ settings = {} }) {
               style={{ display: "flex", flexDirection: "column", gap: "12px" }}
             >
               {[
+                { name: "Wishlist", path: "/wishlist" },
                 { name: "FAQs", path: "/faq" },
                 { name: "Compare", path: "/compare" },
               ].map((link) => (

@@ -201,12 +201,12 @@ export default function CheckoutModal({ isOpen, onClose, settings = {} }) {
                 <div className="flex-[0.8] bg-stone-50 p-8 lg:p-10">
                   <h3 className="font-display text-xl font-medium text-charcoal mb-8 border-b border-stone-200 pb-4">Your Selection</h3>
                   
-                  <div className="space-y-6 mb-8">
+                  <div className="space-y-6 mb-8 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                     {items.length === 0 ? (
                       <p className="text-stone-400 text-center py-10 italic">Your cart is empty</p>
                     ) : (
-                      items.map((item) => (
-                        <div key={`${item.productId}_${item.variant}`} className="flex gap-4 items-start py-2 border-b border-stone-200 last:border-0 pb-4 last:pb-0 relative group">
+                      items.map((item, i) => (
+                        <div key={i} className="flex gap-4 items-start py-2 border-b border-stone-200 last:border-0 pb-4 last:pb-0 relative group">
                           <div className="w-20 h-20 bg-white rounded-lg border border-stone-200 shrink-0 overflow-hidden shadow-sm">
                             <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                           </div>
